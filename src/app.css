@@ -1,0 +1,58 @@
+body > nav {
+  position: fixed
+
+}
+div.content {
+  position: absolute;
+  top: 40px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+
+}
+
+.content > section {
+  display: inline-block;
+  position: absolute;
+  border: 2px solid darkslategray;
+  border-radius: 5%;
+  box-sizing: border-box;
+  padding: 5px;
+}
+
+#tablesList {
+  top: 0;
+  left: 0;
+  height: 50%;
+  width: 40%;
+}
+
+#editorArea {
+  top: 0;
+  right: 0;
+  height: 70%;
+  width: 60%;
+}
+#editorArea ul {
+  height: 35%;
+  left: 0;
+  right: 0;
+  width: 40%;
+  position: relative;  
+  columns: 2;
+}
+#editorArea ul li {
+  display: inline;
+}
+#editorArea #CIEditor {
+  position: absolute;
+  height: 60%;
+  bottom: 0;
+}
+
+#typesList {
+  bottom: 0;
+  left: 0;
+  height: 50%;
+  width: 40%;
+}
