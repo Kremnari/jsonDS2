@@ -1,15 +1,22 @@
-import {saveAs} from 'file-saver';
 import {MetaFilter} from './resources/lib/metafilter'
 import {demoContents} from "./resources/schema/defaults"
+import {jDS2Handler} from './resources/jDS2Handler'
 
+import {DialogService} from 'aurelia-dialog'
+import {LoadProject} from './resources/dialog/loadProject'
+import {SaveProject} from './resources/dialog/saveProject'
+import {inject} from 'aurelia-framework'
 
+@inject(DialogService)
 export class App {
   tables = null
   types = null
   fileContents = demoContents
+  jDS2 = null
   editor = {as: null}
-  constructor(saveas) {
+  constructor(DS) {
     window.jds2 = this
+    this.dialogService = DS
     setTimeout( () => { this.init() }, 0)
   }
   init() {
@@ -21,8 +28,23 @@ export class App {
     this.fileContents = JSON.parse(await evt.target.files[0].text())
     this.init()
   }
-  saveFile() {
-    saveAs(new Blob([JSON.stringify(this.fileContents)], {type: 'application/json'}), "gameSchema.jds2")
+  loadProject() {
+    this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
+      if(!response.wasCancelled) {
+        this.jDS2 = new jDS2Handler(response.output)
+      } else {
+        console.log("load cancelled")
+      }
+    })
+  }
+  saveProject() {
+    //generate current SaveData
+    this.dialogService.open({viewModel: SaveProject, model:this.jDS2, lock: false}).whenClosed(response => {
+      if(!response.wasCancelled) {
+      } else {
+        console.log('save cancelled')
+      }
+    })
   }
   addNewTable(name) {
     this.fileContents.tables[name] = {

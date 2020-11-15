@@ -1,8 +1,8 @@
 <template>
   <require from="app.css"></require>
   <nav>
-    <input type="file" change.delegate="loadFile($event)" accept=".jds2,.json">Load JsDS</input>
-    <button click.delegate="saveFile()">Save Project</button>
+    <button click.delegate="loadProject()">Load...</button>
+    <button click.delegate="saveProject()">Save...</button>
   </nav>
   <div class="content">
     <section id="tablesList">
