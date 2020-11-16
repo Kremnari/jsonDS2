@@ -7,26 +7,36 @@ var basicTypes = {
   Object: { name: "Object", isPrimitive: true, },
 }
 var demoContents = {
-  tables: {
+  $tables: {
     test: {
-      name: "test",
-      contents: [],
-      $schema: [
+      $id: "test",
+      $contents: [],
+      $schema: 'test1'
+    }, 
+    test2: {
+      $i: "test2",
+      $contents: [],
+      $schema: 'test2'
+    },
+  },
+  $schemas: {
+    test1: {
+      $id: 'test1'
+      ,$fields: [
         {name: 'id', type: 'number'},
         {name: 'name', type: 'string'}
       ]
-    }, 
+    },
     test2: {
-      name: "test2",
-      contents: [],
-      $schema: [
+       $id: 'test2'
+      ,$fields: [
         {name: 'id', type: 'number'},
         {name: 'name', type: 'string'},
         {name: 'test', type: 'boolean'}
       ]
-    },
+    }
   },
-  types: basicTypes,
+  $types: basicTypes,
 }
 
 export {basicTypes, demoContents}

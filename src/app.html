@@ -9,14 +9,14 @@
       <h4>Table/Object List</h4>
       <div note="add new static content table">
         <input type="text" value.bind="newTable"></input>
-        <button click.delegate="addNewTable(newTable)">+</button>
+        <button click.delegate="editTableSchema(newTable)">+&gt;</button>
       </div>
-      <div repeat.for="t of tables">
+      <div repeat.for="t of jDS2.tables_list" if.bind="jDS2">
         <span click.delegate="showTableContent(t)">${t}</span>
         <span click.delegate="editTableSchema(t)">&#9998;</span>
       </div>
     </section>
-    <section id="editorArea">
+    <section id="editorArea" if.bind="editor.as">
       <section if.bind="editor.as == 'list'">
         <div>
           Add new Name:
@@ -24,40 +24,44 @@
           <button click.delegate="addNewContentItem(newContentName)">+</button>
         </div>
         <ul>
-          <li repeat.for="contentItem of editor.list" click.delegate="editContentItem($index)">
-            ${contentItem.name}
+          <li repeat.for="contentItem of editor.list" click.delegate="editContentItem(contentItem)">
+            ${contentItem.$name}
           </li>
         </ul>
         <div id="CIEditor" if.bind="editor.CIEdit">
-          ${editor.CIEdit.name}
+          ${editor.CIEdit.$name}
           Add new Field:
           <select name="types" value.bind="newFieldType">
-            <option repeat.for="type of types" model.bind="type">${type}</option>
+            <option repeat.for="type of jDS2.types_list" model.bind="type">${type}</option>
           </select>
           <input type="text" value.bind="newFieldName">name</input>
           <button click.delegate="addField(newFieldName, newFieldType)">+</button>
-          <div repeat.for="prop of editor.schema">
-            ${prop.name} - ${prop.type}<input type="text" value.bind="editor.CIEdit.props[prop.name]"></input>
+          <div repeat.for="prop of editor.schema.$fields">
+            ${prop.name} - ${prop.type}<input type="text" value.bind="editor.CIEdit.obj.$props[prop.name]"></input>
           </div>
+          <button click.delegate="storeContentItem()">Store</button>
+          <button click.delegate="editor.CIEdit = null">Cancel</button>
         </div>
 
       </section>
       <section if.bind="editor.as == 'editTable'">
-        <div repeat.for="value of editor.schema">
-
+        <div repeat.for="value of editor.schema.$fields">
+          ${value}
         </div>
       </section>
       <section if.bind="editor.as == 'editType'">
         Edit Type
       </section>
+      <button click.delegate="editorCancel()">Cancel</button>
+      <button click.delegate="editorSave()">Save</button>
     </section>
     <section id="typesList">
       <h4>Types List</h4>
       <div note="add new type">
         <input type="text" value.bind="newTypeName"></input>
-        <button click.delegate="addNewType(newTypeName)">+</button>
+        <button click.delegate="editTypeOf(newTypeName)">+</button>
       </div>
-      <div repeat.for="type of types">
+      <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
         <span click.delegate="editTypeOf(type)">${type}</span>
         <div repeat.for="subT of type.subtypes" if.bind="type.subtypes">
           <span click.delegate="editTypeOf(subT)">${subT.name}</span>

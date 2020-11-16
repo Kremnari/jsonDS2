@@ -5,32 +5,24 @@ import {jDS2Handler} from './resources/jDS2Handler'
 import {DialogService} from 'aurelia-dialog'
 import {LoadProject} from './resources/dialog/loadProject'
 import {SaveProject} from './resources/dialog/saveProject'
+import {Prompt} from './resources/dialog/prompt'
 import {inject} from 'aurelia-framework'
 
 @inject(DialogService)
 export class App {
   tables = null
   types = null
-  fileContents = demoContents
   jDS2 = null
-  editor = {as: null}
+  editor = null
   constructor(DS) {
     window.jds2 = this
     this.dialogService = DS
-    setTimeout( () => { this.init() }, 0)
-  }
-  init() {
-    //Instantiate like it's a new project
-    this.tables = MetaFilter(this.fileContents.tables)
-    this.types = MetaFilter(this.fileContents.types)
-  }
-  async loadFile(evt) {
-    this.fileContents = JSON.parse(await evt.target.files[0].text())
-    this.init()
+    this.jDS2 = new jDS2Handler(demoContents)
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
       if(!response.wasCancelled) {
+        this.jDS2 = null //force aurelia update
         this.jDS2 = new jDS2Handler(response.output)
       } else {
         console.log("load cancelled")
@@ -39,60 +31,100 @@ export class App {
   }
   saveProject() {
     //generate current SaveData
-    this.dialogService.open({viewModel: SaveProject, model:this.jDS2, lock: false}).whenClosed(response => {
+    this.dialogService.open({viewModel: SaveProject, model:this.jDS2.baseJSON, lock: false}).whenClosed(response => {
       if(!response.wasCancelled) {
       } else {
         console.log('save cancelled')
       }
     })
   }
-  addNewTable(name) {
-    this.fileContents.tables[name] = {
-      name: name,
-      contents: [],
-      $schema: []
+  async promptEditorSave() {
+    if(this.editor) {
+      return new Promise( (resolve) => {
+        this.dialogService.open({viewModel: Prompt, model: "Would you like to save the editor", lock: false})
+          .whenClosed( response => {
+            if(!response.wasCancelled) {
+              this.editorSave()
+            }
+            this.editor = null
+            console.log('closed')
+            resolve()
+        })
+      })
+    } else {
+      this.editor = null
+      return Promise.resolve()
     }
-    this.tables.push(name)
   }
-  addNewContentItem(name) {
-    let props = {}
-    let schema = this.fileContents.tables[this.editor.table].$schema
-    Object.values(schema).forEach( (schem) => { props[schem.name] = "" })
-    this.fileContents.tables[this.editor.table].contents.push({
-      name: name,
-      props: props
-    })
-    //this.editor.list.push(name)
+  editorSave() {
+    switch(this.editor.as) {
+      case 'editTable':
+        this.jDS2.schemas_save(this.editor.table, this.editor.schema)
+        break
+      case 'list':
+        this.jDS2.tables_saveContent(this.editor.table, this.editor.list)
+        break;
+      default:
+        console.log("define saving behavior for: "+this.editor.as)
+    }
+
   }
-  editContentItem(name) {
-    this.editor.CIEdit = this.editor.list[name]
+  editorCancel() {
+    this.editor = {}
   }
-  showTableContent(tableName) {
-    this.editor.as = "list"
-    this.editor.table = tableName
-    this.editor.list = this.fileContents.tables[tableName].contents
-    this.editor.schema = this.fileContents.tables[tableName].$schema
-  }
-  editTableSchema(tableName) {
-    if(this.editor.table==tableName) {
-      this.editor = { as: null };
+  async editTableSchema(tableName) {
+    await this.promptEditorSave()
+    if(!tableName) {
+      this.editor = null;
       return
     }
-    this.editor.as = "editTable"
-    this.editor.table = tableName
-    this.editor.schema = this.fileContents.tables[tableName].$schema
+    this.editor = {
+       as: "editTable"
+      ,table: tableName
+      ,schema: this.jDS2.schemas_edit(tableName)
+    }
   }
-
+  async editTypeOf(typeName) {
+    await this.promptEditorSave()
+    if(this.editor.type==typeName) {
+      this.editor = { as: null }
+      return
+    }
+    this.editor.as = "editType"
+    this.editor.type = typeName
+    this.editor.schema = this.jDS2.types_edit(typeName)    
+  }
+  async showTableContent(tableName) {
+    await this.promptEditorSave()
+    this.editor = {
+      as: "list"
+      ,table: tableName
+      ,list: this.jDS2.tables_content(tableName)
+      ,schema: this.jDS2.tables_schema(tableName)
+    }
+  }
+  addNewContentItem(name) {
+    let item = { $name: name, $props: {}}
+    let schema = this.editor.schema.$fields
+    Object.values(schema).forEach( (schema) => { item.$props[schema.name] = "" })
+    this.editor.list[name] = item
+    this.jDS2.contentItem_add(this.editor.table, name, item)
+  }
+  editContentItem(name) {
+    this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
+  }
+  storeContentItem() {
+    this.editor.list[this.editor.CIEdit.name] = this.editor.CIEdit
+    this.editor.CIEdit = null
+  }
+  
   addNewType(typeName) {
     this.types.push(typeName)
   } 
-  editTypeOf(typeName) {
-    this.editor.as = "editType"
-  }
   addField(name, type) {
     let obj = {name: name, type: type}
     this.editor.schema.push(obj)
-    this.editor.CIEdit.props[name] = ""
+    this.editor.CIEdit.obj.$props[name] = ""
     this.newFieldType = null
     this.newFieldName = null
   }

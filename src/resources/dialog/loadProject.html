@@ -1,11 +1,21 @@
 <template>
-  <h4>Select Project to load</h4>
-  <h5>From IDB</h5>
-  <select value.bind="loadName">
-    <option repeat.for="idb of idbs" model.bind="idb">${idb}</option>
-  </select>
-  <h5>From File</h5>
-  <input type="file" accept=".jds2,.json" id="jsonFileSelect" change.delegate="loadFile($event)">
-  <label for="jsonFileSelect">Select a File</label>
-  <button click.trigger="complete()">Done</button>
+  <ux-dialog>
+    <ux-dialog-header>
+      <h4>Select Project to load</h4>
+    </ux-dialog-header>
+    <ux-dialog-body>
+      <h5>From IDB</h5>
+      <select value.bind="loadName">
+        <option repeat.for="idb of idbs" model.bind="idb">${idb}</option>
+      </select>
+      <button click.delegate="loadDB(loadName)">Load DB</button>
+      <h5>From File</h5>
+      <input type="file" accept=".jds2,.json" id="jsonFileSelect" change.delegate="loadFile($event)">
+      <label for="jsonFileSelect">Select a File</label>
+    </ux-dialog-body>
+    <ux-dialog-footer>
+      <span>${message}</span>
+      <button click.trigger="complete()">Done</button>
+    </ux-dialog-footer>
+  </ux-dialog>
 </template>

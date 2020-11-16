@@ -1,13 +1,21 @@
 <template>
-  <h4>Save to...</h4>
-  <input type="radio" value="replaceIDB" name="saveType" checked.bind="saveAs"><h5>Replace IDB</h5>
-  <select value.bind="saveName">
-    <option repeat.for="idb of idbs" model.bind="idb">${idb}</option>
-  </select>
-  <h5>As...</h5>
-  <input type="text" value.bind="saveName" disabled.bind="saveAs=='replaceIDB'"></input>
-  <input type="radio" value="newIDB" name="saveType" checked.bind="saveAs"><label for="newIDB">New IDB</label>
-  <input type="radio" value="newFile" name="saveType" checked.bind="saveAs"><label for="newFile">New File</label><br />
-  <button click.delegate="done()">Commit</button>
-  <button click.trigger="controller.cancel()">Cancel</button>
+  <ux-dialog>
+    <ux-dialog-header>
+      <h4>Save to...</h4>
+    </ux-dialog-header>
+    <ux-dialog-body>
+      <input type="radio" value="replaceIDB" name="saveType" checked.bind="saveAs"><h5>Replace IDB</h5>
+      <select value.bind="saveName">
+        <option repeat.for="idb of idbs" model.bind="idb">${idb}</option>
+      </select>
+      <h5>As...</h5>
+      <input type="text" value.bind="saveName" disabled.bind="saveAs=='replaceIDB'"></input>
+      <input type="radio" value="newIDB" name="saveType" checked.bind="saveAs"><label for="newIDB">New IDB</label>
+      <input type="radio" value="newFile" name="saveType" checked.bind="saveAs"><label for="newFile">New File</label><br />
+    </ux-dialog-body>
+    <ux-dialog-footer>
+      <button click.delegate="done()">Commit</button>
+      <button click.trigger="controller.cancel()">Cancel</button>
+    </ux-dialog-footer>
+  </ux-dialog>
 </template>

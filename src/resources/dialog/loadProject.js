@@ -8,11 +8,17 @@ export class LoadProject {
     this.idbTarget = new Store("jsonDS2", "projects")
   }
   loadName = null
+  message = "nothing loaded"
   async activate() {
     this.idbs = await keysIdb(this.idbTarget)
   }
   async loadFile(evt) {
     this.loadedData = JSON.parse(await evt.target.files[0].text())
+    this.message = "File Loaded"
+  }
+  async loadDB(which) {
+    this.loadedData = await getIdb(which, this.idbTarget)
+    this.message = "iDB loaded"
   }
   async complete() {
     if (this.loadedData) {
