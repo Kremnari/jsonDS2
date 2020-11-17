@@ -4,7 +4,9 @@ import {jDS2Handler} from './resources/jDS2Handler'
 
 import {DialogService} from 'aurelia-dialog'
 import {LoadProject} from './resources/dialog/loadProject'
+PLATFORM.moduleName('./resources/dialog/loadProject')
 import {SaveProject} from './resources/dialog/saveProject'
+PLATFORM.moduleName('./resources/dialog/saveProject')
 import {Prompt} from './resources/dialog/prompt'
 import {inject} from 'aurelia-framework'
 
