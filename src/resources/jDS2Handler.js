@@ -36,9 +36,10 @@ export class jDS2Handler {
     this.baseJSON.$schemas[table] = { $id: table, $fields: []}
   }
   schemas_edit(table) {
-    if(!this.baseJSON.$schemas[table])
-        this.schemas_new(table)
-    return this.baseJSON.$schemas[table]
+    let schemaName = this.baseJSON.$tables[table].$schema
+    if(!this.baseJSON.$schemas[schemaName])
+        this.schemas_new(schemaName)
+    return this.baseJSON.$schemas[schemaName]
   }
   schema_def(which) {
     return this.baseJSON.$schemas[which]

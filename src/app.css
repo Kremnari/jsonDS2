@@ -56,3 +56,13 @@ div.content {
   height: 50%;
   width: 40%;
 }
+
+.labelLinked {
+  display: none;
+}
+.labelLinked:unchecked ~ p {
+  display: none;
+}
+.labelLinked:checked ~ p {
+  display: revert;
+}

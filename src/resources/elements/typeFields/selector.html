@@ -1,0 +1,12 @@
+<template bindable="field">
+  <div>
+    <!--! radio button visibility not working yet -->
+    <input type="radio" class="labelLinked" id="edit_of_${field.name}">
+    <label for="edit_of_${field.name}">${field.name}</label>
+    <p>
+    Type: <span class="NYI">${field.type}</span><br/>
+    SubType: <span class="NYI">${field.subtype}</span><br/>
+    ValidationFunction: <span class="NYI">${field.description}</span>
+    </p>
+  </div>
+</template>
