@@ -77,10 +77,24 @@ export class jDS2Handler {
       //mark dirty
     }
   }
-  types_edit(name) {
-    if(!this.baseJSON.$types[name])
-      this.types_new(name)
-    return this.baseJSON.$types[name]
+  types_sub_new(type, subT) {
+    if(!this.baseJSON.$types[type].$subTypes)
+        this.baseJSON.$types[type].$subTypes = {}
+    this.baseJSON.$types[type].$subTypes[subT.$name] = subT
+
+    return this.baseJSON.$types[type].$subType[subT.$name]
+  }
+  types_edit(name, subType) {
+    if(subType) {
+      if(!this.baseJSON.$types[name].$subTypes[subType.$name])
+        this.types_sub_new(name, subType)
+      return this.baseJSON.$types[name].$subTypes[subType.$name]
+
+    } else {
+      if(!this.baseJSON.$types[name])
+        this.types_new(name)
+      return this.baseJSON.$types[name]
+    }
   }
   types_prep(type) {
     let base = {}

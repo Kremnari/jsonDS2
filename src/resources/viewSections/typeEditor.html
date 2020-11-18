@@ -1,0 +1,12 @@
+<template bindable="type, subTypeOf">
+  <h5>
+    Edit Type: ${type.$name}
+    <span if.bind="subTypeOf">
+      sub of: ${subTypeOf}
+    </span>
+  </h5>
+  ${type.$name}
+  <div if.bind="type.$subTypes">
+    <p repeat.for="subT of type.$subTypes">${subT.$name}</p>
+  </div>
+</template>

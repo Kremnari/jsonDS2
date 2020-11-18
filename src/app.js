@@ -87,14 +87,15 @@ export class App {
   }
   async editTypeOf(typeName, subType) {
     await this.promptEditorSave()
-    if(this.editor?.type==typeName) {
+    if(this.editor?.type==(subType || typeName)) {
       this.editor = null
       return
     }
     this.editor = {
       as: "editType"
-      ,type: typeName
-      ,schema: this.jDS2.types_edit(typeName)
+      ,type: (subType || typeName)
+      ,subTypeOf: (subType && typeName)
+      ,schema: this.jDS2.types_edit(typeName, subType)
     }
   }
   async showTableContent(tableName) {
@@ -120,17 +121,15 @@ export class App {
     this.editor.list[this.editor.CIEdit.name] = this.editor.CIEdit
     this.editor.CIEdit = null
   }
-  
-  addNewType(typeName) {
-    this.types.push(typeName)
-  } 
   addField(name, type) {
-    let obj = {name: name, type: type}
-    this.editor.schema.push(obj)
-    this.editor.CIEdit.obj.$props[name] = ""
+    let obj = {
+      $name: name,
+      $type: type.$name
+    }
+    this.editor.schema.$fields.push(obj)
+    this.editor.CIEdit[name] = ""
     this.newFieldType = null
     this.newFieldName = null
-  }
-
+  } 
 }
 

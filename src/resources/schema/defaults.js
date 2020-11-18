@@ -1,21 +1,21 @@
 var basicTypes = {
-  Boolean:{ $name: "Boolean",$isPrimitive: true, },
-  String: { $name: "String", $isPrimitive: true, },
-  Number: { $name: "Number", $isPrimitive: true, 
+  Boolean:{ $name: "Boolean", },
+  String: { $name: "String", },
+  Number: { $name: "Number", 
     $subTypes: {
-      tenRange: { $name: "tenRange", $isPrimitive: false}
+      tenRange: { $name: "tenRange" }
     }},
-  BigInt: { $name: "BigInt", $isPrimitive: true, },
-  Array:  { $name: "Array",  $isPrimitive: true, },
-  Object: { $name: "Object", $isPrimitive: true, },
+  BigInt: { $name: "BigInt" },
+  Array:  { $name: "Array" },
+  Object: { $name: "Object" },
 }
 var demoContents = {
   $tables: {
     test: {
       $name: "test",
-      $contents: [
-        {id: "testa", name: "testc"}
-      ],
+      $contents: {
+        testa: {id: "testa", name: "testc"}
+      },
       $schema: 'test1'
     }, 
     test2: {
@@ -28,17 +28,19 @@ var demoContents = {
     test1: {
       $name: 'test1'
       ,$fields: [
-        {name: 'id', type: 'number'},
-        {name: 'name', type: 'string'}
-      ]
+        {$name: 'id', $type: 'number',},
+        {$name: 'name', $type: 'string'}
+      ],
+      $key: "name"
     },
     test2: {
        $name: 'test2'
       ,$fields: [
-        {name: 'id', type: 'number'},
-        {name: 'name', type: 'string'},
-        {name: 'test', type: 'boolean'}
+        {$name: 'id', $type: 'number',},
+        {$name: 'name', $type: 'string'},
+        {$name: 'test', $type: 'boolean'}
       ]
+      ,$key: "name"
     }
   },
   $types: basicTypes,

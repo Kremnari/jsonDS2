@@ -2,6 +2,7 @@
   <require from="app.css"></require>
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/value-converters/objectvalues"></require>
+  <require from="resources/viewSections/typeEditor.html" as="type-editor"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
     <button click.delegate="saveProject()">Save...</button>
@@ -26,20 +27,20 @@
           <button click.delegate="addNewContentItem(newContentName)">+</button>
         </div>
         <ul>
-          <li repeat.for="contentItem of editor.list" click.delegate="editContentItem(contentItem)">
-            ${contentItem.$name}
+          <li repeat.for="contentItem of editor.list | objectValues" click.delegate="editContentItem(contentItem)">
+            ${contentItem.name}
           </li>
         </ul>
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
           Add new Field:
           <select name="types" value.bind="newFieldType">
-            <option repeat.for="type of jDS2.types_list" model.bind="type">${type}</option>
+            <option repeat.for="type of jDS2.types_list" model.bind="type">${type.$name}</option>
           </select>
           <input type="text" value.bind="newFieldName">name</input>
           <button click.delegate="addField(newFieldName, newFieldType)">+</button>
           <div repeat.for="prop of editor.schema.$fields">
-            ${prop.name} - ${prop.type}<input type="text" value.bind="editor.CIEdit.$props[prop.name]"></input>
+            ${prop.$name} - ${prop.$type}<input type="text" value.bind="editor.CIEdit[prop.$name]"></input>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
@@ -49,9 +50,13 @@
       <section if.bind="editor.as == 'editTable'">
         <field-selector repeat.for="field of editor.schema.$fields" field.bind="field"></field-selector>
       </section>
-      <section if.bind="editor.as == 'editType'">
-        Edit Type
+      <section
+        as-element="type-editor"
+        type.bind="jds2.editor.schema"
+        sub-type-of.bind="jds2.editor.subTypeOf"
+        >
       </section>
+      <div if.bind="editor.as=='editType'">Type EditorX</div>
       <button click.delegate="editorCancel()">Cancel</button>
       <button click.delegate="editorSave()">Save</button>
     </section>
