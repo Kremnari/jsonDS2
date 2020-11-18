@@ -49,12 +49,10 @@ export class App {
               this.editorSave()
             }
             this.editor = null
-            console.log('closed')
             resolve()
         })
       })
     } else {
-      this.editor = null
       return Promise.resolve()
     }
   }
@@ -72,7 +70,7 @@ export class App {
 
   }
   editorCancel() {
-    this.editor = {}
+    this.editor = null
   }
   async editTableSchema(tableName) {
     if(this.editor?.table==tableName) return
@@ -87,15 +85,17 @@ export class App {
       ,schema: this.jDS2.schemas_edit(tableName)
     }
   }
-  async editTypeOf(typeName) {
+  async editTypeOf(typeName, subType) {
     await this.promptEditorSave()
-    if(this.editor.type==typeName) {
-      this.editor = { as: null }
+    if(this.editor?.type==typeName) {
+      this.editor = null
       return
     }
-    this.editor.as = "editType"
-    this.editor.type = typeName
-    this.editor.schema = this.jDS2.types_edit(typeName)    
+    this.editor = {
+      as: "editType"
+      ,type: typeName
+      ,schema: this.jDS2.types_edit(typeName)
+    }
   }
   async showTableContent(tableName) {
     await this.promptEditorSave()
@@ -114,7 +114,7 @@ export class App {
     this.jDS2.contentItem_add(this.editor.table, name, item)
   }
   editContentItem(name) {
-    this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
+    this.editor.CIEdit = JSON.parse(JSON.stringify(name))
   }
   storeContentItem() {
     this.editor.list[this.editor.CIEdit.name] = this.editor.CIEdit

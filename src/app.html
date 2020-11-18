@@ -1,6 +1,7 @@
 <template>
   <require from="app.css"></require>
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
+  <require from="resources/value-converters/objectvalues"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
     <button click.delegate="saveProject()">Save...</button>
@@ -13,8 +14,8 @@
         <button click.delegate="editTableSchema(newTable)">+&gt;</button>
       </div>
       <div repeat.for="t of jDS2.tables_list" if.bind="jDS2">
-        <span click.delegate="showTableContent(t)">${t}</span>
-        <span click.delegate="editTableSchema(t)">&#9998;</span>
+        <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
+        <span click.delegate="editTableSchema(t.$name)">&#9998;</span>
       </div>
     </section>
     <section id="editorArea" if.bind="editor.as">
@@ -38,7 +39,7 @@
           <input type="text" value.bind="newFieldName">name</input>
           <button click.delegate="addField(newFieldName, newFieldType)">+</button>
           <div repeat.for="prop of editor.schema.$fields">
-            ${prop.name} - ${prop.type}<input type="text" value.bind="editor.CIEdit.obj.$props[prop.name]"></input>
+            ${prop.name} - ${prop.type}<input type="text" value.bind="editor.CIEdit.$props[prop.name]"></input>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
@@ -61,9 +62,9 @@
         <button click.delegate="editTypeOf(newTypeName)">+</button>
       </div>
       <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
-        <span click.delegate="editTypeOf(type)">${type}</span>
-        <div repeat.for="subT of type.subtypes" if.bind="type.subtypes">
-          <span click.delegate="editTypeOf(subT)">${subT.name}</span>
+        <span click.delegate="editTypeOf(type.$name)">${type.$name}</span>
+        <div repeat.for="subT of type.$subTypes | objectValues" if.bind="type.$subTypes">
+          <span click.delegate="editTypeOf(type.$name, subT)">&nbsp;-&nbsp;${subT.$name}</span>
         </div>
       </div>
     </section>

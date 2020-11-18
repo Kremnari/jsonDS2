@@ -16,10 +16,10 @@ export class jDS2Handler {
     this.schemas.new(name)
   }
   get tables_list() {
-    return Object.keys(this.baseJSON.$tables)
+    return Object.values(this.baseJSON.$tables)
   }
   tables_content(which) {
-    return Object.keys(this.baseJSON.$tables[which].$contents)
+    return this.baseJSON.$tables[which].$contents
   }
   tables_schema(which) {
     return this.schema_def(this.baseJSON.$tables[which].$schema)
@@ -70,7 +70,8 @@ export class jDS2Handler {
 
   types_new(name, defaults) {
     this.baseJSON.$types[name] = {
-      id: name
+      $name: name
+      ,$isPrimitive: false
     }
     if(!defaults) {
       //mark dirty
@@ -78,7 +79,7 @@ export class jDS2Handler {
   }
   types_edit(name) {
     if(!this.baseJSON.$types[name])
-      this.types.new(name)
+      this.types_new(name)
     return this.baseJSON.$types[name]
   }
   types_prep(type) {
@@ -88,6 +89,6 @@ export class jDS2Handler {
     return base
   }
   get types_list() {
-    return Object.keys(this.baseJSON.$types)
+    return Object.values(this.baseJSON.$types)
   }
 }
