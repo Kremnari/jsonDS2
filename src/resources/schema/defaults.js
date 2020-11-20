@@ -1,10 +1,18 @@
 var basicTypes = {
-  Boolean:{ $name: "Boolean", },
-  String: { $name: "String", },
+  Boolean:{
+    $name: "Boolean",
+    $validator: "return typeof value === 'boolean';"
+  },
+  String: {
+    $name: "String",
+    $validator: "return typeof value === 'string';"
+  },
   Number: { $name: "Number", 
     $subTypes: {
       tenRange: { $name: "tenRange" }
-    }},
+    }
+    ,$validator: "return !isNaN(parseFloat(value)) && isFinite(value);"
+  },
   BigInt: { $name: "BigInt" },
   Array:  { $name: "Array" },
   Object: { $name: "Object" },

@@ -5,8 +5,9 @@
       sub of: ${subTypeOf}
     </span>
   </h5>
-  ${type.$name}
+  ${type.$name}<br />
+  Validator Function:<input type="text" value.bind="type.$validator">
   <div if.bind="type.$subTypes">
-    <p repeat.for="subT of type.$subTypes">${subT.$name}</p>
+    <p repeat.for="subT of type.$subTypes | objectValues">${subT.$name}</p>
   </div>
 </template>
