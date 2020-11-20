@@ -3,9 +3,11 @@
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/value-converters/objectValues"></require>
   <require from="resources/viewSections/typeEditor.html" as="type-editor"></require>
+  <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
     <button click.delegate="saveProject()">Save...</button>
+    Editor Save:<input type="checkbox" checked value.bind="suppressEditorSave">
   </nav>
   <div class="content">
     <section id="tablesList">
@@ -31,6 +33,7 @@
             ${contentItem.name}
           </li>
         </ul>
+
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
           Add new Field:
@@ -40,7 +43,11 @@
           <input type="text" value.bind="newFieldName">name</input>
           <button click.delegate="addField(newFieldName, newFieldType)">+</button>
           <div repeat.for="prop of editor.schema.$fields">
-            ${prop.$name} - ${prop.$type}<input type="text" value.bind="editor.CIEdit[prop.$name]"></input>
+            <div
+              as-element="contentPropertyLine"
+              prop.bind="prop"
+              type.bind="jDS2.types_get(prop.$type, prop.$subType)"
+            ></div>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
@@ -52,10 +59,10 @@
       </section>
       <section
         as-element="type-editor"
+        if.bind="editor.as == 'editType'"
         type.bind="editor.schema"
         sub-type-of.bind="editor.subTypeOf"
-        >
-      </section>
+      ></section>
       <div if.bind="editor.as=='editType'">Type EditorX</div>
       <button click.delegate="editorCancel()">Cancel</button>
       <button click.delegate="editorSave()">Save</button>

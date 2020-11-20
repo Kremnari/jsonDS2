@@ -6,6 +6,13 @@ export class jDS2Handler {
       ,$types: {}
     }
   }
+  /*
+    TODO: Clean this up....
+    I should've just used a single get/put scheme,
+    and validated contents based on a defining schema....
+    Once this project is initially complete, I can use this
+    to create a definition schema instead of the default.js/demo 
+  */
 
   tables_new(name) {
     this.baseJSON.$tables[name] = {
@@ -95,6 +102,13 @@ export class jDS2Handler {
         this.types_new(name)
       return this.baseJSON.$types[name]
     }
+  }
+  types_get(type, subT) {
+    console.log(type)
+    let at = this.baseJSON.$types[type]
+    console.log(at)
+    if(!subT) return at
+    return at.$subTypes[subT]
   }
   types_prep(type) {
     let base = {}

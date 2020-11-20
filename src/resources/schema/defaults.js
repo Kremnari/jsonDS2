@@ -36,17 +36,17 @@ var demoContents = {
     test1: {
       $name: 'test1'
       ,$fields: [
-        {$name: 'id', $type: 'number',},
-        {$name: 'name', $type: 'string'}
+        {$name: 'id', $type: 'Number',},
+        {$name: 'name', $type: 'String'}
       ],
       $key: "name"
     },
     test2: {
        $name: 'test2'
       ,$fields: [
-        {$name: 'id', $type: 'number',},
-        {$name: 'name', $type: 'string'},
-        {$name: 'test', $type: 'boolean'}
+        {$name: 'id', $type: 'Number',},
+        {$name: 'name', $type: 'String'},
+        {$name: 'test', $type: 'Boolean'}
       ]
       ,$key: "name"
     }

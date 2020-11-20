@@ -2,10 +2,11 @@
   <h5>
     Edit Type: ${type.$name}
     <span if.bind="subTypeOf">
+      &nbsp;&nbsp;
       sub of: ${subTypeOf}
     </span>
   </h5>
-  ${type.$name}<br />
+  Description: <input type="text" value.bind="type.$description"
   Validator Function:<input type="text" value.bind="type.$validator">
   <div if.bind="type.$subTypes">
     <p repeat.for="subT of type.$subTypes | objectValues">${subT.$name}</p>

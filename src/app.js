@@ -41,6 +41,7 @@ export class App {
     })
   }
   async promptEditorSave() {
+    if(this.suppressEditorSave) return Promise.resolve()
     if(this.editor) {
       return new Promise( (resolve) => {
         this.dialogService.open({viewModel: Prompt, model: "Would you like to save the editor", lock: false})
@@ -120,6 +121,10 @@ export class App {
   storeContentItem() {
     this.editor.list[this.editor.CIEdit.name] = this.editor.CIEdit
     this.editor.CIEdit = null
+  }
+  validator(value, fn) {
+    debugger
+    return Function('value', fn)(value)
   }
   addField(name, type) {
     let obj = {
