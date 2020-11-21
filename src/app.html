@@ -1,7 +1,6 @@
 <template>
   <require from="app.css"></require>
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
-  <require from="resources/value-converters/objectValues"></require>
   <require from="resources/viewSections/typeEditor.html" as="type-editor"></require>
   <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
   <nav>
@@ -18,6 +17,7 @@
       </div>
       <div repeat.for="t of jDS2.tables_list" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
+        <input type="checkbox" class="validObject" checked.bind="isTableValid(t.$name)">
         <span click.delegate="editTableSchema(t.$name)">&#9998;</span>
       </div>
     </section>
@@ -29,8 +29,8 @@
           <button click.delegate="addNewContentItem(newContentName)">+</button>
         </div>
         <ul>
-          <li repeat.for="contentItem of editor.list | objectValues" click.delegate="editContentItem(contentItem)">
-            ${contentItem.name}
+          <li repeat.for="contentItem of editor.list | objectKeys" click.delegate="editContentItem(contentItem)">
+            ${editor.list[contentItem].name}<input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem])">
           </li>
         </ul>
 

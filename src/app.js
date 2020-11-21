@@ -79,6 +79,15 @@ export class App {
       this.validTree[t.$name] = t_obj
     }
   }
+  isTableValid(t) {
+    return Object.values(this.jDS2.tables_content(t)).every((ci) => this.isContentValid(t, ci))
+  }
+  isContentValid(t, ci) {
+    return this.jDS2.tables_schema(t).$fields.every((f) => this.isFieldValid(f, ci[f.$name]))
+  }
+  isFieldValid(s_field, value) {
+    return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subType).$validator)
+  }
   async promptEditorSave() {
     if(this.suppressEditorSave) return Promise.resolve()
     if(this.editor) {
@@ -155,10 +164,12 @@ export class App {
     this.jDS2.contentItem_add(this.editor.table, name, item)
   }
   editContentItem(name) {
-    this.editor.CIEdit = JSON.parse(JSON.stringify(name))
+    this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
+    this.editor.CIKey = name
   }
   storeContentItem() {
-    this.editor.list[this.editor.CIEdit.name] = this.editor.CIEdit
+    this.jDS2.tables_saveContentItem(this.editor.table, this.editor.CIKey, JSON.parse(JSON.stringify(this.editor.CIEdit)))
+    this.editor.list = this.jDS2.tables_content(this.editor.table)
     this.editor.CIEdit = null
   }
   validator(value, fn) {

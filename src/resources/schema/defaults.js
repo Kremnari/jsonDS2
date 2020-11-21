@@ -36,7 +36,7 @@ var demoContents = {
     test1: {
       $name: 'test1'
       ,$fields: [
-        {$name: 'id', $type: 'Number',},
+        {$name: 'id', $type: 'String',},
         {$name: 'name', $type: 'String'}
       ],
       $key: "name"

@@ -34,6 +34,9 @@ export class jDS2Handler {
   tables_saveContent(which, data) {
     this.baseJSON.$tables[which].$contents = data
   }
+  tables_saveContentItem(table, CIname, data) {
+    this.baseJSON.$tables[table].$contents[CIname] = data
+  }
 
   contentItem_add(table, name, item) {
     this.baseJSON.$tables[table].$contents[name] = item

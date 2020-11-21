@@ -1,3 +1,6 @@
 export function configure(config) {
-  config.globalResources(['resources/value-converters/objectValues']);
+  config.globalResources([
+     PLATFORM.moduleName('resources/value-converters/objectValues')
+    ,PLATFORM.moduleName('resources/value-converters/objectKeys')
+  ]);
 }
