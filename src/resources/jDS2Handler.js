@@ -104,9 +104,7 @@ export class jDS2Handler {
     }
   }
   types_get(type, subT) {
-    console.log(type)
     let at = this.baseJSON.$types[type]
-    console.log(at)
     if(!subT) return at
     return at.$subTypes[subT]
   }

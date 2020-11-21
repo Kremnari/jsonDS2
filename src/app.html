@@ -47,6 +47,8 @@
               as-element="contentPropertyLine"
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
+              editor.bind="editor"
+              validator.bind="validator"
             ></div>
           </div>
           <button click.delegate="storeContentItem()">Store</button>

@@ -1,4 +1,5 @@
-<template bindable="prop, type">
+<template bindable="prop, type, editor, validator">
   ${prop.$name} - ${prop.$type}
   <input type="text" value.bind="editor.CIEdit[prop.$name]"></input>
+  <input type="checkbox" checked.bind="validator(editor.CIEdit[prop.$name], type.$validator)">
 </template

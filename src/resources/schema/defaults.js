@@ -22,7 +22,7 @@ var demoContents = {
     test: {
       $name: "test",
       $contents: {
-        testa: {id: "testa", name: "testc"}
+        testa: {id: 1234, name: "testc"}
       },
       $schema: 'test1'
     }, 

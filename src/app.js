@@ -20,12 +20,14 @@ export class App {
     window.jds2 = this
     this.dialogService = DS
     this.jDS2 = new jDS2Handler(demoContents)
+    this.createValidationTree()
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
       if(!response.wasCancelled) {
         this.jDS2 = null //force aurelia update
         this.jDS2 = new jDS2Handler(response.output)
+        this.createValidationTree()
       } else {
         console.log("load cancelled")
       }
@@ -39,6 +41,43 @@ export class App {
         console.log('save cancelled')
       }
     })
+  }
+  createValidationTree() {
+    //Create validation tree
+    this.validTree = {}
+    let tables = this.jDS2.tables_list
+    //rescope
+    let validator = this.validator
+    let jDS2 = this.jDS2
+
+    for(let t of tables) {
+      let t_obj= { $entries: {} }
+      let contents = this.jDS2.tables_content(t.$name)
+      let schema = this.jDS2.schema_def(t.$schema)
+      for(let c in contents) {
+        let c_obj = {$fields: {}}
+        for(let f of schema.$fields) {
+          c_obj.$fields[f.$name] = {}
+          Object.defineProperty(c_obj.$fields[f.$name], "isValid", {
+            get: function() {
+              return validator(jDS2.baseJSON.$tables[t.$name].$contents[c][f.$name], jDS2.types_get(f.$type).$validator)
+            }
+          })
+        }
+        Object.defineProperty(c_obj, "isValid", {
+          get: function()  {
+            return Object.values(this.$fields).every((v)=> v.isValid)
+          }
+        })
+        t_obj.$entries[c] = c_obj
+      }
+      Object.defineProperty(t_obj, "isValid", {
+        get: function() {
+          return Object.values(this.$entries).every((e)=> e.isValid)
+        }
+      })
+      this.validTree[t.$name] = t_obj
+    }
   }
   async promptEditorSave() {
     if(this.suppressEditorSave) return Promise.resolve()
@@ -123,8 +162,8 @@ export class App {
     this.editor.CIEdit = null
   }
   validator(value, fn) {
-    debugger
-    return Function('value', fn)(value)
+    let ret = Function('value', fn)(value)
+    return ret
   }
   addField(name, type) {
     let obj = {
