@@ -9,25 +9,25 @@ import {SaveProject} from './resources/dialog/saveProject'
 PLATFORM.moduleName('./resources/dialog/saveProject')
 import {Prompt} from './resources/dialog/prompt'
 import {inject} from 'aurelia-framework'
+import {BindingSignaler} from 'aurelia-templating-resources'
 
-@inject(DialogService)
+@inject(DialogService, BindingSignaler)
 export class App {
   tables = null
   types = null
   jDS2 = null
   editor = null
-  constructor(DS) {
+  constructor(DS, BS) {
     window.jds2 = this
     this.dialogService = DS
+    this.signaler = BS
     this.jDS2 = new jDS2Handler(demoContents)
-    this.createValidationTree()
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
       if(!response.wasCancelled) {
         this.jDS2 = null //force aurelia update
         this.jDS2 = new jDS2Handler(response.output)
-        this.createValidationTree()
       } else {
         console.log("load cancelled")
       }
@@ -42,6 +42,8 @@ export class App {
       }
     })
   }
+  //!I think I found a better way with the isXValid functions
+  /*
   createValidationTree() {
     //Create validation tree
     this.validTree = {}
@@ -79,11 +81,13 @@ export class App {
       this.validTree[t.$name] = t_obj
     }
   }
+  */
   isTableValid(t) {
     return Object.values(this.jDS2.tables_content(t)).every((ci) => this.isContentValid(t, ci))
   }
   isContentValid(t, ci) {
-    return this.jDS2.tables_schema(t).$fields.every((f) => this.isFieldValid(f, ci[f.$name]))
+    if(typeof ci=="string") ci = this.jDS2.tables_content(t)[ci]
+    return this.jDS2.tables_schema(t).$fields.every((f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
   isFieldValid(s_field, value) {
     return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subType).$validator)
@@ -116,7 +120,8 @@ export class App {
       default:
         console.log("define saving behavior for: "+this.editor.as)
     }
-
+    this.signaler.signal("updateValids")
+    this.editor = null
   }
   editorCancel() {
     this.editor = null
@@ -158,19 +163,20 @@ export class App {
   }
   addNewContentItem(name) {
     let item = { $name: name, $props: {}}
-    let schema = this.editor.schema.$fields
-    Object.values(schema).forEach( (schema) => { item.$props[schema.name] = "" })
+    let fields = this.editor.schema.$fields
+    Object.values(fields).forEach( (field) => { item.$props[field.$name] = "" })
+    this.editor.CIEdit = item
+    this.jDS2.tables_saveContentItem(this.editor.table, name, item)
     this.editor.list[name] = item
-    this.jDS2.contentItem_add(this.editor.table, name, item)
   }
   editContentItem(name) {
     this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
-    this.editor.CIKey = name
   }
   storeContentItem() {
-    this.jDS2.tables_saveContentItem(this.editor.table, this.editor.CIKey, JSON.parse(JSON.stringify(this.editor.CIEdit)))
+    this.jDS2.tables_saveContentItem(this.editor.table, this.editor.CIEdit.$name, this.editor.CIEdit)
     this.editor.list = this.jDS2.tables_content(this.editor.table)
     this.editor.CIEdit = null
+    this.signaler.signal("updateValids")
   }
   validator(value, fn) {
     let ret = Function('value', fn)(value)

@@ -22,13 +22,16 @@ var demoContents = {
     test: {
       $name: "test",
       $contents: {
-        testa: {id: 1234, name: "testc"}
+        testa: {
+          $name: 'testa'
+          ,$props: { id: 1234, name: "testc"}
+        }
       },
       $schema: 'test1'
     }, 
     test2: {
       $name: "test2",
-      $contents: [],
+      $contents: {},
       $schema: 'test2'
     },
   },
@@ -36,10 +39,9 @@ var demoContents = {
     test1: {
       $name: 'test1'
       ,$fields: [
-        {$name: 'id', $type: 'String',},
+        {$name: 'id', $type: 'String'},
         {$name: 'name', $type: 'String'}
-      ],
-      $key: "name"
+      ]
     },
     test2: {
        $name: 'test2'
@@ -48,7 +50,6 @@ var demoContents = {
         {$name: 'name', $type: 'String'},
         {$name: 'test', $type: 'Boolean'}
       ]
-      ,$key: "name"
     }
   },
   $types: basicTypes,

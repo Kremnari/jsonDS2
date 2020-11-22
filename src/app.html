@@ -17,7 +17,7 @@
       </div>
       <div repeat.for="t of jDS2.tables_list" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
-        <input type="checkbox" class="validObject" checked.bind="isTableValid(t.$name)">
+        <input type="checkbox" class="validObject" checked.bind="isTableValid(t.$name) & signal:'updateValids'">
         <span click.delegate="editTableSchema(t.$name)">&#9998;</span>
       </div>
     </section>
@@ -29,8 +29,8 @@
           <button click.delegate="addNewContentItem(newContentName)">+</button>
         </div>
         <ul>
-          <li repeat.for="contentItem of editor.list | objectKeys" click.delegate="editContentItem(contentItem)">
-            ${editor.list[contentItem].name}<input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem])">
+          <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'" click.delegate="editContentItem(contentItem)">
+            ${editor.list[contentItem].$name}<input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'">
           </li>
         </ul>
 
@@ -47,7 +47,7 @@
               as-element="contentPropertyLine"
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
-              editor.bind="editor"
+              target.bind="editor.CIEdit.$props"
               validator.bind="validator"
             ></div>
           </div>
