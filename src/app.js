@@ -127,7 +127,7 @@ export class App {
     this.editor = null
   }
   async editTableSchema(tableName) {
-    if(this.editor?.table==tableName) return
+    if(this.editor?.table==tableName && this.editor?.as=="editTable") return
     await this.promptEditorSave()
     if(!tableName) {
       this.editor = null;

@@ -57,7 +57,7 @@
 
       </section>
       <section if.bind="editor.as == 'editTable'">
-        <field-selector repeat.for="field of editor.schema.$fields" field.bind="field"></field-selector>
+        <field-selector repeat.for="field of editor.schema.$fields" field.bind="field" type.bind="jDS2.types_get(field.$type, field.$subType)"></field-selector>
       </section>
       <section
         as-element="type-editor"

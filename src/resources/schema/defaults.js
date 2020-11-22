@@ -1,7 +1,7 @@
 var basicTypes = {
   Boolean:{
     $name: "Boolean",
-    $validator: "return typeof value === 'boolean';"
+    $validator: "return typeof value === 'boolean' || value=='true' || value=='false';"
   },
   String: {
     $name: "String",
@@ -9,7 +9,22 @@ var basicTypes = {
   },
   Number: { $name: "Number", 
     $subTypes: {
-      tenRange: { $name: "tenRange" }
+      inRange: {
+        $name: "range"
+        ,$params: {
+          minimum: {
+             $name: "minimum"
+            ,$type: "Number"
+            ,$required: true
+          },
+          maximum: {
+             $name: "maximum"
+            ,$type: "Number"
+            ,$required: true
+          }
+        }
+        ,$validator: "return parseFloat(value) && param.minimum < parseFloat(value) && parseFloat(value) < param.maximum"
+      }
     }
     ,$validator: "return !isNaN(parseFloat(value)) && isFinite(value);"
   },
@@ -24,7 +39,10 @@ var demoContents = {
       $contents: {
         testa: {
           $name: 'testa'
-          ,$props: { id: 1234, name: "testc"}
+          ,$props: {
+            id: 1234
+            ,name: "testc"
+          }
         }
       },
       $schema: 'test1'
@@ -39,16 +57,31 @@ var demoContents = {
     test1: {
       $name: 'test1'
       ,$fields: [
-        {$name: 'id', $type: 'String'},
-        {$name: 'name', $type: 'String'}
+        {
+          $name: 'id'
+          ,$type: 'String'
+        },
+        {
+          $name: 'name'
+          ,$type: 'String'
+        }
       ]
     },
     test2: {
        $name: 'test2'
       ,$fields: [
-        {$name: 'id', $type: 'Number',},
-        {$name: 'name', $type: 'String'},
-        {$name: 'test', $type: 'Boolean'}
+         { $name: 'id', $type: 'Number',}
+        ,{ $name: 'name', $type: 'String'}
+        ,{ $name: 'test', $type: 'Boolean'}
+        ,{ $name: 'dec', $type: "Number"
+           ,$subType: "inRange"
+           ,$params: {
+             minimum:  0
+            ,maximum: 10
+
+           }
+           ,$desc: "tests in range of 0 and 10"
+         }
       ]
     }
   },

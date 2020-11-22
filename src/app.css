@@ -60,9 +60,9 @@ div.content {
 .labelLinked {
   display: none;
 }
-.labelLinked:unchecked ~ p {
+.labelLinked ~ span {
   display: none;
 }
-.labelLinked:checked ~ p {
-  display: revert;
+.labelLinked:checked ~ span {
+  display: inline;
 }
