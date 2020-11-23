@@ -60,9 +60,32 @@ div.content {
 .labelLinked {
   display: none;
 }
-.labelLinked ~ span {
+.labelLinked ~ div {
   display: none;
 }
-.labelLinked:checked ~ span {
+.labelLinked:checked ~ div {
   display: inline;
+}
+
+.fieldSelectorHead {
+  font-weight: bold;
+  text-decoration: underline;
+}
+field-selector > * {
+  margin-left: 5px;
+}
+field-selector:hover > div {
+  display: inline;
+}
+label.selectHeader {
+  display: inline;
+}
+.sectionLinked, .sectionLinked ~ div {
+  display: none;
+}
+#viewTypes:checked ~ #viewTypesPane {
+  display: inline
+}
+#viewDefs:checked ~ #viewDefsPane {
+  display: inline
 }

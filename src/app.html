@@ -57,28 +57,53 @@
 
       </section>
       <section if.bind="editor.as == 'editTable'">
-        <field-selector repeat.for="field of editor.schema.$fields" field.bind="field" type.bind="jDS2.types_get(field.$type, field.$subType)"></field-selector>
+        <div class="editField" if.bind="editor.tableField">
+
+        </div>
+        <field-selector
+          repeat.for="field of editor.schema.$fields"
+          field.bind="field"
+          type.bind="jDS2.types_get(field.$type, field.$subType)"
+          parent.bind="baseApp"
+          radio-group="baseSchema"
+        ></field-selector>
+      </section>
+      <section if.bind="editor.as == 'editDef'">
+        ${editor.def.$name}
       </section>
       <section
         as-element="type-editor"
         if.bind="editor.as == 'editType'"
         type.bind="editor.schema"
+        parent.bind="baseApp"
         sub-type-of.bind="editor.subTypeOf"
       ></section>
-      <div if.bind="editor.as=='editType'">Type EditorX</div>
       <button click.delegate="editorCancel()">Cancel</button>
       <button click.delegate="editorSave()">Save</button>
     </section>
     <section id="typesList">
-      <h4>Types List</h4>
-      <div note="add new type">
-        <input type="text" value.bind="newTypeName"></input>
-        <button click.delegate="editTypeOf(newTypeName)">+</button>
+      <input class="sectionLinked" type="radio" name="typeOrDefs" id="viewTypes" checked>
+      <input class="sectionLinked" type="radio" name="typeOrDefs" id="viewDefs">
+      <label for="viewTypes" class="selectHeader">Types List</label>
+      <label for="viewDefs"  class="selectHeader">Definitions List</label>
+      <div id="viewTypesPane">
+        <div note="add new type">
+          <input type="text" value.bind="newTypeName"></input>
+          <button click.delegate="editTypeOf(newTypeName)">+</button>
+        </div>
+        <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
+          <span click.delegate="editTypeOf(type.$name)">${type.$name}</span>
+          <div repeat.for="subT of type.$subTypes | objectValues" if.bind="type.$subTypes">
+            <span click.delegate="editTypeOf(type.$name, subT)">&nbsp;-&nbsp;${subT.$name}</span>
+          </div>
+        </div>
       </div>
-      <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
-        <span click.delegate="editTypeOf(type.$name)">${type.$name}</span>
-        <div repeat.for="subT of type.$subTypes | objectValues" if.bind="type.$subTypes">
-          <span click.delegate="editTypeOf(type.$name, subT)">&nbsp;-&nbsp;${subT.$name}</span>
+      <div id="viewDefsPane">
+        <input type="text" value.bind="newDefName">
+        <button click.delegate="add('def', newDefName)">+</button>
+        <button click.delegate="edit('def', newDefName)">-&gt;</button>
+        <div repeat.for="defName of jDS2.defs_list & signal:'generalUpdate'" if.bind="jDS2">
+            <span click.delegate="edit('def', defName)">${defName}</span>
         </div>
       </div>
     </section>

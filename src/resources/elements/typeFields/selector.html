@@ -1,13 +1,23 @@
-<template bindable="field, type">
-  <div>
-    <!--TODO need to setup for editing -->
-    <input type="radio" class="labelLinked" id="edit_of_${field.$name}" name="schemaField">
-    <label for="edit_of_${field.$name}">${field.$name}</label><br/>
-    <span>Type: ${field.$type}<br/></span>
-    <span if.bind="field.$subType">
-      SubType: ${field.$subType}
-      <br/>
-    </span>
-    <span>ValidFn: ${type.$validator}</span>
+<template bindable="field, type, radioGroup, parent">
+  <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
+  <!--TODO need to setup for editing -->
+  <input type="radio" class="labelLinked" id="edit_of_${field.$name}" name.bind="radioGroup">
+  <label for="edit_of_${field.$name}" class="fieldSelectorHead">
+    ${field.$name}
+    <span click.delegate="parent.editTableSchemaItem(field.$name)" if.bind="parent">&#9998;</span>
+  </label><br/>
+  <div>Type: ${field.$type}<br/></div>
+  <div if.bind="field.$subType">
+    SubType: ${field.$subType}<br/>
+    Parameters:<br/>
+    <field-selector
+      repeat.for="param of type.$params | objectValues"
+      field.bind="param"
+      type.bind="jDS2.types_get(param.$type, param.$subType)"
+      is-param="true"
+      radio-group="params_of_${field.$name}"
+    ></field-selector>
   </div>
+  <div>ValidFn:${type.$validator}</div>
+  <br/>
 </template>

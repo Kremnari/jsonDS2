@@ -1,3 +1,6 @@
+const required = (message) => {
+  throw new Error(message)
+}
 export class jDS2Handler {
   constructor(json) {
     this.baseJSON = json || {
@@ -6,14 +9,46 @@ export class jDS2Handler {
       ,$types: {}
     }
   }
-  /*
-    TODO: Clean this up....
+  add(what, data) {
+    //TODO add default "base" version of each based on what's inbound from data
+    switch(what) {
+      case "param":
+        this.baseJSON.$types[data.subOf].$subTypes[data.to].$params[data.param.$name] = data.param
+        break;
+      case "subtype":
+        this.baseJSON.$types[data.to].$subTypes[data.param.$name] = data.param
+        break;
+      case "def":
+        let base = data.$name ? data : {
+          $name: data.name || data || required("Name Required")
+        }
+        this.baseJSON.$definitions[base.$name] = base
+        break;
+    }
+  }
+  edit(what, data) {
+    switch(what) {
+      case "def":
+        let defName = data.$name || data.name || data
+        return this.baseJSON.$definitions[defName] || (this.add("def", defName ) && this.baseJSON.$definitions[defName])
+        break;
+    }
+  }
+  get tables_list() {
+    return Object.values(this.baseJSON.$tables)
+  }
+  get types_list() {
+    return Object.values(this.baseJSON.$types)
+  }
+  get defs_list() {
+    return Object.keys(this.baseJSON.$definitions)
+  }
+  /*TODO: Clean this up....
     I should've just used a single get/put scheme,
     and validated contents based on a defining schema....
     Once this project is initially complete, I can use this
     to create a definition schema instead of the default.js/demo 
   */
-
   tables_new(name) {
     this.baseJSON.$tables[name] = {
        $id: name
@@ -21,9 +56,6 @@ export class jDS2Handler {
       ,$contents: {}
     }
     this.schemas.new(name)
-  }
-  get tables_list() {
-    return Object.values(this.baseJSON.$tables)
   }
   tables_content(which) {
     return this.baseJSON.$tables[which].$contents
@@ -88,14 +120,13 @@ export class jDS2Handler {
         this.baseJSON.$types[type].$subTypes = {}
     this.baseJSON.$types[type].$subTypes[subT.$name] = subT
 
-    return this.baseJSON.$types[type].$subType[subT.$name]
+    return this.baseJSON.$types[type].$subTypes[subT.$name]
   }
   types_edit(name, subType) {
     if(subType) {
-      if(!this.baseJSON.$types[name].$subTypes[subType.$name])
+      if(!this.baseJSON.$types[name].$subTypes?.[subType.$name])
         this.types_sub_new(name, subType)
       return this.baseJSON.$types[name].$subTypes[subType.$name]
-
     } else {
       if(!this.baseJSON.$types[name])
         this.types_new(name)
@@ -106,14 +137,5 @@ export class jDS2Handler {
     let at = this.baseJSON.$types[type]
     if(!subT) return at
     return at.$subTypes[subT]
-  }
-  types_prep(type) {
-    let base = {}
-    //INC Object.values(this.baseJSON.$types[name]).forEach()
-    //INC this.baseJSON.$types[type]
-    return base
-  }
-  get types_list() {
-    return Object.values(this.baseJSON.$types)
   }
 }

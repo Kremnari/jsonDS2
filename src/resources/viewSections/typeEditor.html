@@ -1,4 +1,4 @@
-<template bindable="type, subTypeOf">
+<template bindable="type, subTypeOf, parent">
   <h5>
     Edit Type: ${type.$name}
     <span if.bind="subTypeOf">
@@ -6,9 +6,33 @@
       sub of: ${subTypeOf}
     </span>
   </h5>
-  Description: <input type="text" value.bind="type.$description"
-  Validator Function:<input type="text" value.bind="type.$validator">
+  Description:&nbsp;<input type="text" value.bind="type.$description"><br />
+  Validator Function:&nbsp;<input type="text" value.bind="type.$validator">
   <div if.bind="type.$subTypes">
-    <p repeat.for="subT of type.$subTypes | objectValues">${subT.$name}</p>
+    <p>
+      New Subtype:
+      <input type="text" value.bind="newSubTypeName">
+      <button click.delegate="parent.editTypeOf(type.$name, {$name: newSubTypeName})">+</button>
+    </p>
+    <p repeat.for="subT of type.$subTypes | objectValues">
+      ${subT.$name}
+    </p>
+  </div>
+  <div if.bind="subTypeOf">
+    Parameters
+    <p repeat.for="param of type.$params | objectValues & signal:'generalUpdate'">
+      ${param.$name}:${param.$type} - ${param.$description}
+    </p>
+    New
+      <select value.bind="newParamType">
+        <option repeat.for="t of parent.basicTypes" model.bind="t">${t}</option>
+      </select>
+    as: <input type="text" value.bind="newParamName">
+    <button click.delegate="parent.addParam({newParamName, newParamType})">Add</button>
+  </div>
+  <div if.bind="!subTypeOf">
+    New subType
+    <input type="text" value.bind="newSubTypeName">
+    <button click.delegate="parent.editTypeOf(parent.editor.type, {$name: newSubTypeName})">Add</button>
   </div>
 </template>

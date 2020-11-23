@@ -10,7 +10,7 @@ var basicTypes = {
   Number: { $name: "Number", 
     $subTypes: {
       inRange: {
-        $name: "range"
+        $name: "inRange"
         ,$params: {
           minimum: {
              $name: "minimum"
@@ -23,14 +23,13 @@ var basicTypes = {
             ,$required: true
           }
         }
-        ,$validator: "return parseFloat(value) && param.minimum < parseFloat(value) && parseFloat(value) < param.maximum"
+        ,$validator: "return parseFloat(value) && params.minimum < parseFloat(value) && parseFloat(value) < params.maximum"
       }
     }
     ,$validator: "return !isNaN(parseFloat(value)) && isFinite(value);"
   },
   BigInt: { $name: "BigInt" },
   Array:  { $name: "Array" },
-  Object: { $name: "Object" },
 }
 var demoContents = {
   $tables: {
@@ -83,6 +82,11 @@ var demoContents = {
            ,$desc: "tests in range of 0 and 10"
          }
       ]
+    }
+  },
+  $definitions: {
+    address: {
+      
     }
   },
   $types: basicTypes,

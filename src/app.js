@@ -13,15 +13,15 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 
 @inject(DialogService, BindingSignaler)
 export class App {
-  tables = null
-  types = null
   jDS2 = null
   editor = null
+  basicTypes = ["Number", "String", "Boolean", "BigInt", "Object"]
   constructor(DS, BS) {
     window.jds2 = this
     this.dialogService = DS
     this.signaler = BS
     this.jDS2 = new jDS2Handler(demoContents)
+    this.baseApp = this
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
@@ -139,6 +139,10 @@ export class App {
       ,schema: this.jDS2.schemas_edit(tableName)
     }
   }
+  async editTableSchemaItem(field) {
+    if(this.editor.as!="editTable") return
+    this.editor.tableField = field
+  }
   async editTypeOf(typeName, subType) {
     await this.promptEditorSave()
     if(this.editor?.type==(subType || typeName)) {
@@ -159,6 +163,43 @@ export class App {
       ,table: tableName
       ,list: this.jDS2.tables_content(tableName)
       ,schema: this.jDS2.tables_schema(tableName)
+    }
+  }
+  addParam(params) {
+    let newParam = {
+      $name: params.newParamName
+     ,$type: params.newParamType
+   }
+    this.editor.schema.$params[params.newParamName] = newParam
+    this.jDS2.add("param", {
+         to: this.editor.type.$name
+        ,subOf: this.editor.subTypeOf
+        ,param: newParam
+    })
+    this.signaler.signal("generalUpdate")
+  }
+  add(objType, params) {
+    switch(objType) {
+      case 'subtype':
+        if(this.editor.as=="editType" && !this.editor.subTypeOf) break
+        this.jDS2.types_sub_new(this.editor.type, {$name: newSubTypeName})
+        break;
+      case 'def':
+        this.jDS2.add('def', params)
+        this.signaler.signal("generalUpdate")
+        break;
+    }
+  }
+  async edit(objType, name) {
+    await this.promptEditorSave()
+    switch(objType) {
+      case 'def':
+        this.editor = {
+          as: "editDef",
+          def: this.jDS2.edit('def', name)
+        }
+        this.signaler.signal("generalUpdate")
+        break;
     }
   }
   addNewContentItem(name) {
