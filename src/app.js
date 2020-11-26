@@ -42,46 +42,6 @@ export class App {
       }
     })
   }
-  //!I think I found a better way with the isXValid functions
-  /*
-  createValidationTree() {
-    //Create validation tree
-    this.validTree = {}
-    let tables = this.jDS2.tables_list
-    //rescope
-    let validator = this.validator
-    let jDS2 = this.jDS2
-
-    for(let t of tables) {
-      let t_obj= { $entries: {} }
-      let contents = this.jDS2.tables_content(t.$name)
-      let schema = this.jDS2.schema_def(t.$schema)
-      for(let c in contents) {
-        let c_obj = {$fields: {}}
-        for(let f of schema.$fields) {
-          c_obj.$fields[f.$name] = {}
-          Object.defineProperty(c_obj.$fields[f.$name], "isValid", {
-            get: function() {
-              return validator(jDS2.baseJSON.$tables[t.$name].$contents[c][f.$name], jDS2.types_get(f.$type).$validator)
-            }
-          })
-        }
-        Object.defineProperty(c_obj, "isValid", {
-          get: function()  {
-            return Object.values(this.$fields).every((v)=> v.isValid)
-          }
-        })
-        t_obj.$entries[c] = c_obj
-      }
-      Object.defineProperty(t_obj, "isValid", {
-        get: function() {
-          return Object.values(this.$entries).every((e)=> e.isValid)
-        }
-      })
-      this.validTree[t.$name] = t_obj
-    }
-  }
-  */
   isTableValid(t) {
     return Object.values(this.jDS2.tables_content(t)).every((ci) => this.isContentValid(t, ci))
   }
@@ -117,11 +77,35 @@ export class App {
       case 'list':
         this.jDS2.tables_saveContent(this.editor.table, this.editor.list)
         break;
+      case 'editDef':
+        this.jDS2.save('def', this.editor.def)
+        break;
       default:
         console.log("define saving behavior for: "+this.editor.as)
     }
     this.signaler.signal("updateValids")
     this.editor = null
+  }
+  editorDelete(name) { // name is optional
+    let sure = confirm("Are you sure you want to delete?")
+    if(!sure) return
+    switch(this.editor.as) {
+      case "list":
+        if(name) { this.jDS2.delete("contentItem", name, this.editor.table); break; }
+        break;
+      case "editTable":
+        this.jDS2.delete("table", this.editor.table)
+        this.editor = null
+        break;
+      case "editDef":
+        this.jDS2.delete("def", this.editor.def)
+        this.editor = null
+        break;
+      default:
+        console.log("define delete behavior for: "+this.editor.as)
+        debugger
+        break;
+    }
   }
   editorCancel() {
     this.editor = null
@@ -171,32 +155,45 @@ export class App {
      ,$type: params.newParamType
    }
     this.editor.schema.$params[params.newParamName] = newParam
-    this.jDS2.add("param", {
+    this.jDS2.add("subType_param", {
          to: this.editor.type.$name
         ,subOf: this.editor.subTypeOf
         ,param: newParam
     })
     this.signaler.signal("generalUpdate")
   }
+  //*Add should only affect editor
+  //*Save should be used to push to the handler
   add(objType, params) {
     switch(objType) {
       case 'subtype':
         if(this.editor.as=="editType" && !this.editor.subTypeOf) break
+        //TODO move jDS2 push to save()
         this.jDS2.types_sub_new(this.editor.type, {$name: newSubTypeName})
         break;
       case 'def':
+        if(!params) return
+        //TODO move jDS2 push to save()
         this.jDS2.add('def', params)
         this.signaler.signal("generalUpdate")
         break;
+      case 'field':
+        if(!params.$name) return 
+        this.editor.def.$fields[params.$name] = params
+        this.signaler.signal("generalUpdate")
+        this.signaler.signal("defUpdate")
+        break;
     }
   }
-  async edit(objType, name) {
+  //*should be a jDS2 pull
+  async edit(objType, params) {
     await this.promptEditorSave()
     switch(objType) {
       case 'def':
+        if(!params.name) return
         this.editor = {
           as: "editDef",
-          def: this.jDS2.edit('def', name)
+          def: this.jDS2.edit('def', params.name)
         }
         this.signaler.signal("generalUpdate")
         break;

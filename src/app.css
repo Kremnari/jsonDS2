@@ -74,9 +74,6 @@ div.content {
 field-selector > * {
   margin-left: 5px;
 }
-field-selector:hover > div {
-  display: inline;
-}
 label.selectHeader {
   display: inline;
 }

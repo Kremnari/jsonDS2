@@ -1,7 +1,8 @@
 <template>
   <require from="app.css"></require>
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
-  <require from="resources/viewSections/typeEditor.html" as="type-editor"></require>
+  <require from="resources/viewSections/editors/type.html" as="type-editor"></require>
+  <require from="resources/viewSections/editors/definition.html" as="definition-editor"></require>
   <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
@@ -30,7 +31,9 @@
         </div>
         <ul>
           <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'" click.delegate="editContentItem(contentItem)">
-            ${editor.list[contentItem].$name}<input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'">
+            ${editor.list[contentItem].$name}
+            <input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'">
+            <button click.delegate="editorDelete(contentItem)">X</button>
           </li>
         </ul>
 
@@ -48,17 +51,17 @@
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
               target.bind="editor.CIEdit.$props"
-              validator.bind="validator"
+              validator.call="validator"
             ></div>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
+          <button click.delegate="editorDelete()">
           <button click.delegate="editor.CIEdit = null">Cancel</button>
         </div>
 
       </section>
       <section if.bind="editor.as == 'editTable'">
         <div class="editField" if.bind="editor.tableField">
-
         </div>
         <field-selector
           repeat.for="field of editor.schema.$fields"
@@ -68,9 +71,14 @@
           radio-group="baseSchema"
         ></field-selector>
       </section>
-      <section if.bind="editor.as == 'editDef'">
-        ${editor.def.$name}
-      </section>
+      <section
+        if.bind="editor.as == 'editDef'"
+        as-element="definition-editor"
+        def.bind="editor.def"
+        types.bind="jDS2.types_list"
+        add-field.call="add('field', param)"
+        signaler.bind="signaler"
+      ></section>
       <section
         as-element="type-editor"
         if.bind="editor.as == 'editType'"
@@ -79,6 +87,7 @@
         sub-type-of.bind="editor.subTypeOf"
       ></section>
       <button click.delegate="editorCancel()">Cancel</button>
+      <button click.delegate="editorDelete()">Delete</button>
       <button click.delegate="editorSave()">Save</button>
     </section>
     <section id="typesList">
@@ -100,10 +109,10 @@
       </div>
       <div id="viewDefsPane">
         <input type="text" value.bind="newDefName">
-        <button click.delegate="add('def', newDefName)">+</button>
-        <button click.delegate="edit('def', newDefName)">-&gt;</button>
+        <button click.delegate="add('def', {name: newDefName})">+</button>
+        <button click.delegate="edit('def', {name: newDefName})">-&gt;</button>
         <div repeat.for="defName of jDS2.defs_list & signal:'generalUpdate'" if.bind="jDS2">
-            <span click.delegate="edit('def', defName)">${defName}</span>
+            <span click.delegate="edit('def', {name: defName})">${defName}</span>
         </div>
       </div>
     </section>

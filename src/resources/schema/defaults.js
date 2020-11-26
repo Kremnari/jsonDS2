@@ -86,7 +86,40 @@ var demoContents = {
   },
   $definitions: {
     address: {
-      
+       $name: 'address'
+      ,$fields: {
+        line1: {
+           $name: 'line1'
+          ,$type: 'String'
+          ,$order: 1
+        },
+        line2: {
+           $name: 'line2'
+          ,$type: 'String'
+          ,$order: 2
+        },
+        state: {
+           $name: 'state'
+          ,$type: 'String'
+          ,$order: 4
+        },
+        zipCode: {
+           $name: 'zipCode'
+          ,$type: 'Number'
+          ,$subType: "inRange"
+          ,$params: {
+            minimum:  0
+           ,maximum: 99999
+          }
+         ,$order: 5
+        },
+        city: {
+          $name: 'city'
+         ,$type: 'String'
+         ,$order: 3
+       },
+     }
+      ,$description: "A simple address form"
     }
   },
   $types: basicTypes,

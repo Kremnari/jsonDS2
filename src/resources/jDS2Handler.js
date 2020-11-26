@@ -11,8 +11,10 @@ export class jDS2Handler {
   }
   add(what, data) {
     //TODO add default "base" version of each based on what's inbound from data
+    // in other words, don't just assume data.param is a correct data structure??
+    // too much shorthand above
     switch(what) {
-      case "param":
+      case "subType_param":
         this.baseJSON.$types[data.subOf].$subTypes[data.to].$params[data.param.$name] = data.param
         break;
       case "subtype":
@@ -24,14 +26,43 @@ export class jDS2Handler {
         }
         this.baseJSON.$definitions[base.$name] = base
         break;
+      default:
+        console.log("%cdefine add behaviour", "color: orange; background: lightgrey")
+        debugger;
     }
   }
-  edit(what, data) {
+  edit(what, data) {  // get for write... potentially could be a point of checkout/lock
     switch(what) {
       case "def":
         let defName = data.$name || data.name || data
         return this.baseJSON.$definitions[defName] || (this.add("def", defName ) && this.baseJSON.$definitions[defName])
         break;
+      default:
+        console.log("%cdefine edit behaviour", "color: orange; background: lightgrey")
+        debugger;
+     }
+  }
+  delete(what, who, where) {
+    switch(what) {
+      case "table":
+        delete this.baseJSON.$tables[who]
+        break;
+      case "contentItem":
+        delete this.baseJSON.$tables[where].$contents[who]
+        break;
+      case "def":
+        delete this.baseJSON.$definitions[who.$name || who]
+        break;
+    }
+  }
+  save(what, data) {
+    switch(what) {
+      case "def":
+        this.baseJSON.$definitions[data.$name] = data
+        break;
+      default:
+        console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
+        debugger;
     }
   }
   get tables_list() {
