@@ -82,7 +82,7 @@ export class jDS2Handler {
         this.baseJSON.$definitions[data.$name] = data
         break;
       case "schema":
-        this.baseJSON.$schema[data.$name] = data
+        this.baseJSON.$schemas[data.$name] = data
         break;
       default:
         console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
