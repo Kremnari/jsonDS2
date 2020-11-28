@@ -47,7 +47,7 @@ export class App {
   }
   isContentValid(t, ci) {
     if(typeof ci=="string") ci = this.jDS2.tables_content(t)[ci]
-    return this.jDS2.tables_schema(t).$fields.every((f) => this.isFieldValid(f, ci.$props[f.$name]))
+    return Object.values(this.jDS2.tables_schema(t).$fields).every((f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
   isFieldValid(s_field, value) {
     return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subType).$validator)
@@ -79,6 +79,9 @@ export class App {
         break;
       case 'editDef':
         this.jDS2.save('def', this.editor.def)
+        break;
+      case "editSchema":
+        this.jDS2.save('schema', this.editor.schema)
         break;
       default:
         console.log("define saving behavior for: "+this.editor.as)
@@ -122,10 +125,6 @@ export class App {
       ,table: tableName
       ,schema: this.jDS2.schemas_edit(tableName)
     }
-  }
-  async editTableSchemaItem(field) {
-    if(this.editor.as!="editTable") return
-    this.editor.tableField = field
   }
   async editTypeOf(typeName, subType) {
     await this.promptEditorSave()
@@ -177,9 +176,15 @@ export class App {
         this.jDS2.add('def', params)
         this.signaler.signal("generalUpdate")
         break;
-      case 'field':
+      case 'def_field':
         if(!params.$name) return 
         this.editor.def.$fields[params.$name] = params
+        this.signaler.signal("generalUpdate")
+        this.signaler.signal("defUpdate")
+        break;
+      case 'schema_field':
+        if(!params.$name) return
+        this.editor.schema.$fields[params.$name] = params
         this.signaler.signal("generalUpdate")
         this.signaler.signal("defUpdate")
         break;
@@ -194,6 +199,15 @@ export class App {
         this.editor = {
           as: "editDef",
           def: this.jDS2.edit('def', params.name)
+        }
+        this.signaler.signal("generalUpdate")
+        break;
+      case 'schema':
+        if(!params.name || params.name==this.editor?.table) return
+        this.editor = {
+           as: "editSchema"
+          ,table: params.name
+          ,schema: this.jDS2.edit("schema", params.name)
         }
         this.signaler.signal("generalUpdate")
         break;

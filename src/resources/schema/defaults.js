@@ -55,24 +55,24 @@ var demoContents = {
   $schemas: {
     test1: {
       $name: 'test1'
-      ,$fields: [
-        {
+      ,$fields: {
+        id: {
           $name: 'id'
           ,$type: 'String'
         },
-        {
+        name: {
           $name: 'name'
           ,$type: 'String'
         }
-      ]
+      }
     },
     test2: {
        $name: 'test2'
-      ,$fields: [
-         { $name: 'id', $type: 'Number',}
-        ,{ $name: 'name', $type: 'String'}
-        ,{ $name: 'test', $type: 'Boolean'}
-        ,{ $name: 'dec', $type: "Number"
+      ,$fields: {
+         id: { $name: 'id', $type: 'Number',}
+        ,name: { $name: 'name', $type: 'String'}
+        ,test: { $name: 'test', $type: 'Boolean'}
+        ,dec: { $name: 'dec', $type: "Number"
            ,$subType: "inRange"
            ,$params: {
              minimum:  0
@@ -81,7 +81,7 @@ var demoContents = {
            }
            ,$desc: "tests in range of 0 and 10"
          }
-      ]
+      }
     }
   },
   $definitions: {

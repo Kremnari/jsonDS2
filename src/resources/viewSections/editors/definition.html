@@ -1,11 +1,16 @@
 <template bindable="def, types, addField, signaler">
-  <h5>${def.$name}</h5>
+  <require from="resources/viewSections/paramsDefine.html"></require>
+  <h4>${def.$name}</h4>
+  <span if.bind="def.$description">
+    Description:
+    <input type="text" value.bind="def.$description">
+  </span>
   <div note="define new field">
     New:<input type="text" value.bind="newField">
     Order: <input type="number" value.bind="newFieldOrder" min="0" step="1" max="100"><br>
     Base:
     <select value.bind="fieldBase" change.delegate="signaler.signal('defUpdate')">
-      <option repeat.for="type of types" model.bind="type">${type.$name}</option>
+      <option repeat.for="type of types | objectValues" model.bind="type">${type.$name}</option>
     </select>
     SubType:
     <select value.bind="fieldSubtype" if.bind="fieldBase & signal:'defUpdate'">
@@ -14,14 +19,19 @@
     </select>
     <div if.bind="fieldSubtype.$params">
       <div repeat.for="param of fieldSubtype.$params | objectValues">
-        ${param.$name}
+        ${param.$name}: <input type="text" value.bind="newFieldParams[param.$name]">
       </div>
     </div>
-    <button click.delegate="addField({ param:
-      {$name: newField, $order: newFieldOrder, $type:fieldBase.$name, $subType:fieldSubtype.$name, $params:{}}
-    })">Add</button>
+    <br>
+    <button click.delegate="addScoped()">${buttonText}</button>
+    <button click.delegate="clearScoped()">Clear</button>
+    <button if.bind="buttonText=='edit'" click.delegate="del()">Delete</button>
   </div>
-  <div repeat.for="field of def.$fields | objectValues | sorter:'$order':'ascending' & signal:'defUpdate'">
-    ${field.$name}
+  <div repeat.for="field of def.$fields | objectValues | sorter:'$order':'ascending' & signal:'defUpdate'" click.trigger="edit(field)">
+    ${field.$name} ::
+    <span if.bind="field.$subType">${field.$subType} &isinv; </span>
+    ${field.$type}
+    <span repeat.for="param of field.$params| objectEntries">&cup; ${param[0]}@${param[1]}  </span>
   </div>
+
 </template>

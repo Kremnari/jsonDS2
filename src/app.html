@@ -2,7 +2,7 @@
   <require from="app.css"></require>
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/viewSections/editors/type.html" as="type-editor"></require>
-  <require from="resources/viewSections/editors/definition.html" as="definition-editor"></require>
+  <require from="resources/viewSections/editors/definition" as="definition-editor"></require>
   <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
@@ -14,12 +14,12 @@
       <h4>Table/Object List</h4>
       <div note="add new static content table">
         <input type="text" value.bind="newTable"></input>
-        <button click.delegate="editTableSchema(newTable)">+&gt;</button>
+        <button click.delegate="edit('schema', {name: newTable})">+&gt;</button>
       </div>
       <div repeat.for="t of jDS2.tables_list" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
         <input type="checkbox" class="validObject" checked.bind="isTableValid(t.$name) & signal:'updateValids'">
-        <span click.delegate="editTableSchema(t.$name)">&#9998;</span>
+        <span click.delegate="edit('schema', {name: t.$schema})">&#9998;</span>
       </div>
     </section>
     <section id="editorArea" if.bind="editor.as">
@@ -45,7 +45,7 @@
           </select>
           <input type="text" value.bind="newFieldName">name</input>
           <button click.delegate="addField(newFieldName, newFieldType)">+</button>
-          <div repeat.for="prop of editor.schema.$fields">
+          <div repeat.for="prop of editor.schema.$fields | objectValues">
             <div
               as-element="contentPropertyLine"
               prop.bind="prop"
@@ -60,23 +60,20 @@
         </div>
 
       </section>
-      <section if.bind="editor.as == 'editTable'">
-        <div class="editField" if.bind="editor.tableField">
-        </div>
-        <field-selector
-          repeat.for="field of editor.schema.$fields"
-          field.bind="field"
-          type.bind="jDS2.types_get(field.$type, field.$subType)"
-          parent.bind="baseApp"
-          radio-group="baseSchema"
-        ></field-selector>
-      </section>
+      <section
+        if.bind="editor.as == 'editSchema'"
+        as-element="definition-editor"
+        def.bind="editor.schema"
+        types.bind="jDS2.types_list_base"
+        add-field.call="add('schema_field', param)"
+        signaler.bind="signaler"
+      ></section>
       <section
         if.bind="editor.as == 'editDef'"
         as-element="definition-editor"
         def.bind="editor.def"
-        types.bind="jDS2.types_list"
-        add-field.call="add('field', param)"
+        types.bind="jDS2.types_list_base"
+        add-field.call="add('def_field', param)"
         signaler.bind="signaler"
       ></section>
       <section

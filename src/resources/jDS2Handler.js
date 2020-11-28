@@ -9,6 +9,19 @@ export class jDS2Handler {
       ,$types: {}
     }
   }
+  //Adds a blank template
+  new(what, name) {
+    switch(what) {
+      case "table":
+        this.baseJSON.$tables[name] = {
+           $id: name
+          ,$schema: name
+          ,$contents: {}
+        }
+        this.baseJSON.$schemas[name] = { $id: name, $fields: []}
+      }
+  }
+  //Adds an item with user-filled data
   add(what, data) {
     //TODO add default "base" version of each based on what's inbound from data
     // in other words, don't just assume data.param is a correct data structure??
@@ -34,9 +47,14 @@ export class jDS2Handler {
   edit(what, data) {  // get for write... potentially could be a point of checkout/lock
     switch(what) {
       case "def":
-        let defName = data.$name || data.name || data
+        let defName = data.$name || data.name || data //Uggggly...
         return this.baseJSON.$definitions[defName] || (this.add("def", defName ) && this.baseJSON.$definitions[defName])
         break;
+      case "schema":
+        let schema = this.baseJSON.$schemas[data]
+        if(!schema) throw new ReferenceError("Cannot locate schema to edit....")
+        return JSON.parse(JSON.stringify(schema))
+        break
       default:
         console.log("%cdefine edit behaviour", "color: orange; background: lightgrey")
         debugger;
@@ -53,12 +71,18 @@ export class jDS2Handler {
       case "def":
         delete this.baseJSON.$definitions[who.$name || who]
         break;
+      case "schema":
+        //Umm.... no... schemas should be edited only
+        break;
     }
   }
   save(what, data) {
     switch(what) {
       case "def":
         this.baseJSON.$definitions[data.$name] = data
+        break;
+      case "schema":
+        this.baseJSON.$schema[data.$name] = data
         break;
       default:
         console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
@@ -71,6 +95,9 @@ export class jDS2Handler {
   get types_list() {
     return Object.values(this.baseJSON.$types)
   }
+  get types_list_base() {
+    return this.baseJSON.$types
+  }
   get defs_list() {
     return Object.keys(this.baseJSON.$definitions)
   }
@@ -81,12 +108,10 @@ export class jDS2Handler {
     to create a definition schema instead of the default.js/demo 
   */
   tables_new(name) {
-    this.baseJSON.$tables[name] = {
-       $id: name
-      ,$schema: name
-      ,$contents: {}
-    }
-    this.schemas.new(name)
+    // 28-NOV-20
+    console.log("depreciated.. trace and update")
+    debugger
+    this.new("table", name)
   }
   tables_content(which) {
     return this.baseJSON.$tables[which].$contents
@@ -101,9 +126,6 @@ export class jDS2Handler {
     this.baseJSON.$tables[table].$contents[name] = data
   }
 
-  schemas_new(table) {
-    this.baseJSON.$schemas[table] = { $id: table, $fields: []}
-  }
   schemas_edit(table) {
     let schemaName = this.baseJSON.$tables[table].$schema
     if(!this.baseJSON.$schemas[schemaName])
