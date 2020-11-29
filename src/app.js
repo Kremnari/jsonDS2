@@ -1,6 +1,6 @@
-import {MetaFilter} from './resources/lib/metafilter'
 import {demoContents} from "./resources/schema/defaults"
 import {jDS2Handler} from './resources/jDS2Handler'
+import {Store, keys as keysIdb, get as getIdb} from 'idb-keyval'
 
 import {DialogService} from 'aurelia-dialog'
 import {LoadProject} from './resources/dialog/loadProject'
@@ -8,6 +8,8 @@ PLATFORM.moduleName('./resources/dialog/loadProject')
 import {SaveProject} from './resources/dialog/saveProject'
 PLATFORM.moduleName('./resources/dialog/saveProject')
 import {Prompt} from './resources/dialog/prompt'
+
+
 import {inject} from 'aurelia-framework'
 import {BindingSignaler} from 'aurelia-templating-resources'
 
@@ -20,8 +22,23 @@ export class App {
     window.jds2 = this
     this.dialogService = DS
     this.signaler = BS
-    this.jDS2 = new jDS2Handler(demoContents)
-    this.baseApp = this
+    this.baseApp = this // To be able to pass into custom elements
+    setTimeout(() => {this.defaultLoad()}, 0)
+  }
+  async defaultLoad() {
+    try {
+      let store = new Store("jsonDS2_settings", "settings")  //* See note @ EOF of saveProject.js
+      this.idbSettings = await keysIdb(store)
+      if(this.idbSettings.includes('lastSave')) {
+        const saveName = await getIdb("lastSave", store)
+        const save = await getIdb(saveName, new Store('jsonDS2_projects', 'projects'))
+        this.jDS2 = new jDS2Handler(save)
+      } else {
+        throw new ReferenceError("No lastsave available")
+      }
+    } catch(e) {
+      this.jDS2 = new jDS2Handler(demoContents)
+    }
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {

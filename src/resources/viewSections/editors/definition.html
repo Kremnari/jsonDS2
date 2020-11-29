@@ -13,7 +13,7 @@
       <option repeat.for="type of types | objectValues" model.bind="type">${type.$name}</option>
     </select>
     SubType:
-    <select value.bind="fieldSubtype" if.bind="fieldBase & signal:'defUpdate'">
+    <select value.bind="fieldSubtype">
       <option model.bind="undefined">*base*</option>
       <option repeat.for="subT of fieldBase.$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
     </select>

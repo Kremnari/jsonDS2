@@ -5,7 +5,7 @@ export class LoadProject {
   static inject = [DialogController]
   constructor(controller) {
     this.controller = controller
-    this.idbTarget = new Store("jsonDS2", "projects")
+    this.idbTarget = new Store("jsonDS2_projects", "projects")  //* See note at EOF of saveProject.js
   }
   loadName = null
   message = "nothing loaded"

@@ -119,6 +119,8 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
     // serve index.html for all 404 (required for push-state)
     historyApiFallback: true,
     hot: hmr || project.platform.hmr,
+    https: true,
+    disableHostCheck: true,
     port: port || project.platform.port,
     host: host
   },
