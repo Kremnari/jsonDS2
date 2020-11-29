@@ -14,11 +14,11 @@ export class jDS2Handler {
     switch(what) {
       case "table":
         this.baseJSON.$tables[name] = {
-           $id: name
+           $name: name
           ,$schema: name
           ,$contents: {}
         }
-        this.baseJSON.$schemas[name] = { $id: name, $fields: []}
+        this.baseJSON.$schemas[name] = { $name: name, $fields: []}
       }
   }
   //Adds an item with user-filled data
@@ -63,6 +63,9 @@ export class jDS2Handler {
   delete(what, who, where) {
     switch(what) {
       case "table":
+        //TODO Protect this from multiple tables sharing a schema...
+        //TODO ...NYI, as there's no way to Multiple In Single Out this right now...
+        delete this.baseJSON.$schemas[this.baseJSON.$tables[who].$schema]
         delete this.baseJSON.$tables[who]
         break;
       case "contentItem":

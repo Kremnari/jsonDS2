@@ -94,9 +94,15 @@ export class App {
     if(!sure) return
     switch(this.editor.as) {
       case "list":
-        if(name) { this.jDS2.delete("contentItem", name, this.editor.table); break; }
+        if(name) {
+          this.jDS2.delete("contentItem", name, this.editor.table);
+          this.signaler.signal("updateValids")
+        } else {
+          this.jDS2.delete('table', this.editor.table)
+          this.editor = null
+        }
         break;
-      case "editTable":
+      case "editSchema":
         this.jDS2.delete("table", this.editor.table)
         this.editor = null
         break;
@@ -109,6 +115,7 @@ export class App {
         debugger
         break;
     }
+    this.signaler.signal("generalUpdate")
   }
   editorCancel() {
     this.editor = null
@@ -187,6 +194,11 @@ export class App {
         this.editor.schema.$fields[params.$name] = params
         this.signaler.signal("generalUpdate")
         this.signaler.signal("defUpdate")
+        break;
+      case 'table':
+        if(!params.name) return
+        this.jDS2.new('table', params.name)
+        this.edit('schema', params)
         break;
     }
   }
