@@ -18,7 +18,7 @@ export class jDS2Handler {
           ,$schema: name
           ,$contents: {}
         }
-        this.baseJSON.$schemas[name] = { $name: name, $fields: []}
+        this.baseJSON.$schemas[name] = { $name: name, $fields: {}}
       }
   }
   //Adds an item with user-filled data

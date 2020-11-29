@@ -10,12 +10,12 @@
     Order: <input type="number" value.bind="newFieldOrder" min="0" step="1" max="100"><br>
     Base:
     <select value.bind="fieldBase" change.delegate="signaler.signal('defUpdate')">
-      <option repeat.for="type of types | objectValues" model.bind="type">${type.$name}</option>
+      <option repeat.for="type of types | objectValues" model.bind="type.$name">${type.$name}</option>
     </select>
     SubType:
     <select value.bind="fieldSubtype">
       <option model.bind="undefined">*base*</option>
-      <option repeat.for="subT of fieldBase.$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
+      <option repeat.for="subT of types[fieldBase].$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
     </select>
     <div if.bind="fieldSubtype.$params">
       <div repeat.for="param of fieldSubtype.$params | objectValues">
