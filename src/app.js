@@ -175,6 +175,7 @@ export class App {
     }
   }
   addParam(params) {
+    console.log(JSON.stringify(params))
     let newParam = {
       $name: params.newParamName
      ,$type: params.newParamType.base
