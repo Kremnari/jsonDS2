@@ -67,7 +67,7 @@ export class App {
     return Object.values(this.jDS2.tables_schema(t).$fields).every((f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
   isFieldValid(s_field, value) {
-    return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subType).$validator)
+    return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subTypeName).$validator)
   }
   async promptEditorSave() {
     if(this.suppressEditorSave) return Promise.resolve()
@@ -150,18 +150,19 @@ export class App {
       ,schema: this.jDS2.schemas_edit(tableName)
     }
   }
-  async editTypeOf(typeName, subType) {
+  async editTypeOf(typeName, subTypeName) {
     await this.promptEditorSave()
-    if(this.editor?.type==(subType || typeName)) {
+    if(this.editor?.type==(subTypeName || typeName)) {
       this.editor = null
       return
     }
     this.editor = {
       as: "editType"
-      ,type: (subType || typeName)
-      ,subTypeOf: (subType && typeName)
-      ,schema: this.jDS2.types_edit(typeName, subType)
+      ,type: (subTypeName || typeName)
+      ,subTypeOf: (subTypeName && typeName)
+      ,schema: this.jDS2.types_edit(typeName, subTypeName)
     }
+    this.signaler.signal("generalUpdate")
   }
   async showTableContent(tableName) {
     await this.promptEditorSave()
@@ -175,11 +176,15 @@ export class App {
   addParam(params) {
     let newParam = {
       $name: params.newParamName
-     ,$type: params.newParamType
+     ,$type: params.newParamType.base
+     ,$subType: params.newParamType.subType
+     ,$desc: params.newParamDesc
    }
+   if(!this.editor.schema.$params) this.editor.schema.$params = {}
     this.editor.schema.$params[params.newParamName] = newParam
+    //! IMPURE should not touch jDS2 unless in a save function
     this.jDS2.add("subType_param", {
-         to: this.editor.type.$name
+         to: this.editor.schema.$name
         ,subOf: this.editor.subTypeOf
         ,param: newParam
     })
@@ -192,7 +197,7 @@ export class App {
       case 'subtype':
         if(this.editor.as=="editType" && !this.editor.subTypeOf) break
         //TODO move jDS2 push to save()
-        this.jDS2.types_sub_new(this.editor.type, {$name: newSubTypeName})
+        this.jDS2.add("subtype", {to: this.editor.type, param: {$name: newSubTypeName} })
         break;
       case 'def':
         if(!params) return

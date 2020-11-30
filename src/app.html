@@ -80,7 +80,7 @@
         as-element="type-editor"
         if.bind="editor.as == 'editType'"
         type.bind="editor.schema"
-        parent.bind="baseApp"
+        base-app.bind="baseApp"
         sub-type-of.bind="editor.subTypeOf"
       ></section>
       <button click.delegate="editorCancel()">Cancel</button>
@@ -99,8 +99,8 @@
         </div>
         <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
           <span click.delegate="editTypeOf(type.$name)">${type.$name}</span>
-          <div repeat.for="subT of type.$subTypes | objectValues" if.bind="type.$subTypes">
-            <span click.delegate="editTypeOf(type.$name, subT)">&nbsp;-&nbsp;${subT.$name}</span>
+          <div repeat.for="subT of type.$subTypes | objectValues & signal:'generalUpdate'" if.bind="type.$subTypes">
+            <span click.delegate="editTypeOf(type.$name, subT.$name)">&nbsp;-&nbsp;${subT.$name}</span>
           </div>
         </div>
       </div>

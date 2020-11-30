@@ -1,11 +1,11 @@
 <template bindable="typing, signaler, types">
   Base:
-  <select value.bind="typing.base" change.delegate="signaler.signal('defUpdate')">
+  <select value.bind="typing.base" change.trigger="signaler.signal('typeSelectUpdate')">
     <option repeat.for="type of types" model.bind="type">${type.$name}</option>
   </select>
   SubType:
-  <select value.bind="typing.subType" if.bind="baseType & signal:'defUpdate'">
+  <select value.bind="typing.subType" if.bind="typing.base & signal:'typeSelectUpdate'">
     <option model.bind="undefined">*base*</option>
-    <option repeat.for="subT of typing.base.$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
+    <option repeat.for="subT of typing.base.$subTypes | objectValues & signal:'typeSelectUpdate'" model.bind="subT">${subT.$name}</option>
   </select>
 </template>

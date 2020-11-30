@@ -10,7 +10,7 @@ export class jDS2Handler {
     }
   }
   //Adds a blank template
-  new(what, name) {
+  new(what, name, params) {
     switch(what) {
       case "table":
         this.baseJSON.$tables[name] = {
@@ -19,7 +19,14 @@ export class jDS2Handler {
           ,$contents: {}
         }
         this.baseJSON.$schemas[name] = { $name: name, $fields: {}}
-      }
+        break;
+      case "subType":
+        this.baseJSON.$types[params.to].$subTypes[name] = {
+           $name: name
+          ,$params: {}
+          ,$validator: "return true"
+        }
+    }
   }
   //Adds an item with user-filled data
   add(what, data) {
@@ -166,23 +173,24 @@ export class jDS2Handler {
     this.baseJSON.$types[name] = {
       $name: name
       ,$isPrimitive: false
+      ,$subTypes: {}
     }
     if(!defaults) {
-      //mark dirty
+      //mark dirty?
     }
   }
   types_sub_new(type, subT) {
+    console.warn('type_sub_new_called')
+    debugger
     if(!this.baseJSON.$types[type].$subTypes)
-        this.baseJSON.$types[type].$subTypes = {}
-    this.baseJSON.$types[type].$subTypes[subT.$name] = subT
-
+      this.new("subType", subT, {to: type})
     return this.baseJSON.$types[type].$subTypes[subT.$name]
   }
   types_edit(name, subType) {
     if(subType) {
-      if(!this.baseJSON.$types[name].$subTypes?.[subType.$name])
-        this.types_sub_new(name, subType)
-      return this.baseJSON.$types[name].$subTypes[subType.$name]
+      if(!this.baseJSON.$types[name].$subTypes[subType])
+        this.new("subType", subType, {to: name})
+      return this.baseJSON.$types[name].$subTypes[subType]
     } else {
       if(!this.baseJSON.$types[name])
         this.types_new(name)

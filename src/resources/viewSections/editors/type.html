@@ -1,4 +1,5 @@
-<template bindable="type, subTypeOf, parent">
+<template bindable="type, subTypeOf, baseApp">
+  <require from="resources/viewElements/subTypeSelector.html" as="sub-type-selector"></require>
   <h5>
     Edit Type: ${type.$name}
     <span if.bind="subTypeOf">
@@ -12,27 +13,25 @@
     <p>
       New Subtype:
       <input type="text" value.bind="newSubTypeName">
-      <button click.delegate="parent.editTypeOf(type.$name, {$name: newSubTypeName})">+</button>
+      <button click.delegate="baseApp.editTypeOf(type.$name, newSubTypeName)">+</button>
     </p>
     <p repeat.for="subT of type.$subTypes | objectValues">
-      ${subT.$name}
+      <span click.delegate="baseApp.editTypeOf(type.$name, subT)">${subT.$name}</span>
     </p>
   </div>
   <div if.bind="subTypeOf">
     Parameters
     <p repeat.for="param of type.$params | objectValues & signal:'generalUpdate'">
-      ${param.$name}:${param.$type} - ${param.$description}
+      ${param.$name}:${param.$type}${param.$desc && " - "+param.$desc}
     </p>
-    New
-      <select value.bind="newParamType">
-        <option repeat.for="t of parent.basicTypes" model.bind="t">${t}</option>
-      </select>
-    as: <input type="text" value.bind="newParamName">
-    <button click.delegate="parent.addParam({newParamName, newParamType})">Add</button>
-  </div>
-  <div if.bind="!subTypeOf">
-    New subType
-    <input type="text" value.bind="newSubTypeName">
-    <button click.delegate="parent.editTypeOf(parent.editor.type, {$name: newSubTypeName})">Add</button>
+    New parameter:
+      <sub-type-selector
+        typing.bind="newParamType"
+        signaler.bind="baseApp.signaler"
+        types.bind="baseApp.jDS2.types_list"
+      ></sub-type-selector>
+    named: <input type="text" value.bind="newParamName"><br>
+    <input type="text" value.bind="newParamDesc" placeholder="description">
+    <button click.delegate="baseApp.addParam({newParamName, newParamType, newParamDesc})">Add</button>
   </div>
 </template>
