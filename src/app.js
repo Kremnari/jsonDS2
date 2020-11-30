@@ -178,8 +178,8 @@ export class App {
     console.log(JSON.stringify(params))
     let newParam = {
       $name: params.newParamName
-     ,$type: params.newParamType.base
-     ,$subType: params.newParamType.subType
+     ,$type: params.newParamTypeB
+     ,$subType: params.newParamTypeS
      ,$desc: params.newParamDesc
    }
    if(!this.editor.schema.$params) this.editor.schema.$params = {}
