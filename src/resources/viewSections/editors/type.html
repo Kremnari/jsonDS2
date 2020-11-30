@@ -25,6 +25,7 @@
       ${param.$name}:${param.$type}${param.$desc && " - "+param.$desc}
     </p>
     New parameter:
+      <input type="hidden" value.bind="newParamType"
       <sub-type-selector
         typing.bind="newParamType"
         signaler.bind="baseApp.signaler"
