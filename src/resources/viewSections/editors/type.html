@@ -27,7 +27,7 @@
     New parameter:
       <input type="hidden" value.bind="newParamType">
       <sub-type-selector
-        typing="${newParamType = {}}"
+        typing.bind="newParamType"
         signaler.bind="baseApp.signaler"
         types.bind="baseApp.jDS2.types_list"
       ></sub-type-selector>
