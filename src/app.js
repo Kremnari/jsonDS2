@@ -8,6 +8,7 @@ PLATFORM.moduleName('./resources/dialog/loadProject')
 import {SaveProject} from './resources/dialog/saveProject'
 PLATFORM.moduleName('./resources/dialog/saveProject')
 import {Prompt} from './resources/dialog/prompt'
+PLATFORM.moduleName('./resources/dialog/prompt')
 
 
 import {inject} from 'aurelia-framework'
