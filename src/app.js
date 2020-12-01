@@ -275,14 +275,14 @@ export class App {
     let types = this.jDS2.types_list_base
     let fnTname = "type:"+prop.$type
     if(!this.validatorsCache[fnTname]) {
-      this.validatorsCache[fnTname] = Function('value', types[prop.$type].$validator)
+      this.validatorsCache[fnTname] = Function('value', "return "+types[prop.$type].$validator)
     }
     let passT = this.validatorsCache[fnTname](value)
     if(!prop.$subType) return passT
 
     let fnSname = fnTname+"UsubT:"+prop.$subType
     if(!this.validatorsCache[fnSname]) {
-      this.validatorsCache[fnSname] = Function('value', 'params', types[prop.$type].$subTypes[prop.$subType].$validator)
+      this.validatorsCache[fnSname] = Function('value', 'params', "return "+types[prop.$type].$subTypes[prop.$subType].$validator)
     }
     let passS = this.validatorsCache[fnSname](value, prop.$params)
     return passT && passS
