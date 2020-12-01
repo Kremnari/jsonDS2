@@ -2,12 +2,12 @@ var basicTypes = {
   Boolean:{
     $name: "Boolean",
     $subTypes: {},
-    $validator: "return typeof value === 'boolean' || value=='true' || value=='false';"
+    $validator: "typeof value === 'boolean' || value=='true' || value=='false';"
   },
   String: {
     $name: "String",
     $subTypes: {},
-    $validator: "return typeof value === 'string';"
+    $validator: "typeof value === 'string';"
   },
   Number: {
      $name: "Number"
@@ -26,22 +26,28 @@ var basicTypes = {
             ,$required: true
           }
         }
-        ,$validator: "return parseFloat(value) && params.minimum < parseFloat(value) && parseFloat(value) < params.maximum"
+        ,$validator: "parseFloat(value) && params.minimum < parseFloat(value) && parseFloat(value) < params.maximum"
       }
     }
-    ,$validator: "return !isNaN(parseFloat(value)) && isFinite(value);"
+    ,$validator: "!isNaN(parseFloat(value)) && isFinite(value);"
   },
   BigInt: {
     $name: "BigInt",
-    $subTypes: {},
+    $subTypes: {
+    },
+    $validator: "true"
   },
   Array:  {
     $name: "Array",
-    $subTypes: {},
+    $subTypes: {
+    },
+    $validator: "true" 
   },
   Enumerated: {
      $name: "Enumerated"
-    ,$subTypes: {},
+    ,$subTypes: {
+    }
+    ,$validator: "true"
   }
 }
 var demoContents = {
