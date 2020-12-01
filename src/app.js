@@ -270,6 +270,15 @@ export class App {
     let ret = Function('value', fn)(value)
     return ret
   }
+  validatorLookup(value, prop) { // Prop comes directly from the schema...
+    let types = this.jDS2.types_list_base
+    let tFn = types[prop.$type].$validator
+    let passT = Function('value', tFn)(value)
+
+    let sFn = types[prop.$type].$subTypes[prop.$subType]?.$validator
+    let passS = sFn ? Function('value', 'params', sFn)(value, prop.$params) : true
+    return passT && passS
+  }
   addField(name, type) {
     let obj = {
       $name: name,

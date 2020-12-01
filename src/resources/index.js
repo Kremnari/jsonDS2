@@ -5,5 +5,6 @@ export function configure(config) {
     ,PLATFORM.moduleName('resources/value-converters/objectKeys')
     ,PLATFORM.moduleName('resources/value-converters/stripNulls')
     ,PLATFORM.moduleName('resources/value-converters/sorter')
+    ,PLATFORM.moduleName('resources/viewElements/validator.html')
   ]);
 }

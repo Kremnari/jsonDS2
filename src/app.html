@@ -18,7 +18,7 @@
       </div>
       <div repeat.for="t of jDS2.tables_list & signal:'generalUpdate'" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
-        <input type="checkbox" class="validObject" checked.bind="isTableValid(t.$name) & signal:'updateValids'">
+        <validator valid.bind="isTableValid(t.$name) & signal:'updateValids'"></validator>
         <span click.delegate="edit('schema', {name: t.$schema})">&#9998;</span>
       </div>
     </section>
@@ -32,8 +32,8 @@
         <ul>
           <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'">
             <span click.delegate="editContentItem(contentItem)">${editor.list[contentItem].$name}</span>
-            <input type="checkbox" checked.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'">
-            <button click.delegate="editorDelete(contentItem)">X</button>
+            <validator valid.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'"></validator>
+            <button click.delegate="editorDelete(contentItem)">&#x2327;</button>
           </li>
         </ul>
 
@@ -45,7 +45,8 @@
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
               target.bind="editor.CIEdit.$props"
-              validator.bind="validator"
+              validator.call="validatorLookup(value, prop)"
+              signal.call="signaler.signal('updateValids')"
             ></div>
           </div>
           <button click.delegate="storeContentItem()">Store</button>

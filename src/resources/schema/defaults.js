@@ -9,8 +9,9 @@ var basicTypes = {
     $subTypes: {},
     $validator: "return typeof value === 'string';"
   },
-  Number: { $name: "Number", 
-    $subTypes: {
+  Number: {
+     $name: "Number"
+    ,$subTypes: {
       inRange: {
         $name: "inRange"
         ,$params: {
@@ -80,7 +81,9 @@ var demoContents = {
          id: { $name: 'id', $type: 'Number',}
         ,name: { $name: 'name', $type: 'String'}
         ,test: { $name: 'test', $type: 'Boolean'}
-        ,dec: { $name: 'dec', $type: "Number"
+        ,dec: {
+            $name: 'dec'
+           ,$type: "Number"
            ,$subType: "inRange"
            ,$params: {
              minimum:  0

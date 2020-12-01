@@ -86,3 +86,10 @@ label.selectHeader {
 #viewDefs:checked ~ #viewDefsPane {
   display: inline
 }
+
+validator > .valid {
+  color: green;
+}
+validator > .invalid {
+  color: red;
+}
