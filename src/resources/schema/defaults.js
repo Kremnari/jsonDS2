@@ -39,6 +39,10 @@ var basicTypes = {
     $name: "Array",
     $subTypes: {},
   },
+  Enumerated: {
+     $name: "Enumerated"
+    ,$subTypes: {},
+  }
 }
 var demoContents = {
   $tables: {
