@@ -18,6 +18,7 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 export class App {
   jDS2 = null
   editor = null
+  validatorsCache = {}
   basicTypes = ["Number", "String", "Boolean", "BigInt", "Object"]
   constructor(DS, BS) {
     window.jds2 = this
@@ -272,11 +273,18 @@ export class App {
   }
   validatorLookup(value, prop) { // Prop comes directly from the schema...
     let types = this.jDS2.types_list_base
-    let tFn = types[prop.$type].$validator
-    let passT = Function('value', tFn)(value)
+    let fnTname = "type:"+prop.$type
+    if(!this.validatorsCache[fnTname]) {
+      this.validatorsCache[fnTname] = Function('value', types[prop.$type].$validator)
+    }
+    let passT = this.validatorsCache[fnTname](value)
+    if(!prop.$subType) return passT
 
-    let sFn = types[prop.$type].$subTypes[prop.$subType]?.$validator
-    let passS = sFn ? Function('value', 'params', sFn)(value, prop.$params) : true
+    let fnSname = fnTname+"UsubT:"+prop.$subType
+    if(!this.validatorsCache[fnSname]) {
+      this.validatorsCache[fnSname] = Function('value', 'params', types[prop.$type].$subTypes[prop.$subType].$validator)
+    }
+    let passS = this.validatorsCache[fnSname](value, prop.$params)
     return passT && passS
   }
   addField(name, type) {
