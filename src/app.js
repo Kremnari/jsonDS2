@@ -175,11 +175,11 @@ export class App {
     }
   }
   addParam(params) {
-    console.log(JSON.stringify(params))
+    debugger
     let newParam = {
       $name: params.newParamName
-     ,$type: params.newParamTypeB
-     ,$subType: params.newParamTypeS
+     ,$type: params.newParamType.base
+     ,$subType: params.newParamType.subT
      ,$desc: params.newParamDesc
    }
    if(!this.editor.schema.$params) this.editor.schema.$params = {}

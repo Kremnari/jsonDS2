@@ -39,23 +39,17 @@
 
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
-          Add new Field:
-          <select name="types" value.bind="newFieldType">
-            <option repeat.for="type of jDS2.types_list" model.bind="type">${type.$name}</option>
-          </select>
-          <input type="text" value.bind="newFieldName">name</input>
-          <button click.delegate="addField(newFieldName, newFieldType)">+</button>
           <div repeat.for="prop of editor.schema.$fields | objectValues">
             <div
               as-element="contentPropertyLine"
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
               target.bind="editor.CIEdit.$props"
-              validator.call="validator"
+              validator.bind="validator"
             ></div>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
-          <button click.delegate="editorDelete()">
+          <button click.delegate="editorDelete()">Delete</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
         </div>
 

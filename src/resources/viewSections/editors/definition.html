@@ -6,7 +6,7 @@
     <input type="text" value.bind="def.$description">
   </span>
   <div note="define new field">
-    New:<input type="text" value.bind="newField">
+    New Name:<input type="text" value.bind="newField">
     Order: <input type="number" value.bind="newFieldOrder" min="0" step="1" max="100"><br>
     Base:
     <select value.bind="fieldBase" change.delegate="signaler.signal('defUpdate')">
