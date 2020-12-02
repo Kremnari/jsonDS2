@@ -1,27 +1,60 @@
 import {bindable} from 'aurelia-templating'
-import {observable} from 'aurelia-framework'
+import {inject} from 'aurelia-framework'
 
+import {App} from "app"
+PLATFORM.moduleName("app")
+
+@inject(App) 
 export class Definition {
   @bindable def;
-  @bindable types;
-  @bindable addField;
-  @bindable signaler;
-  @observable fieldSubtype;
+  @bindable schema;
   buttonText = "add"
-  constructor() { window.testZone = this }
+  editType = null
+  constructor(App) { 
+    this.types = App.jDS2.types_list_base
+    this.signaler = App.signaler
+    this.addField = (param) => App.add(this.editType+'_field', param)
+  }
+  bind() {
+    this.editType = (this.def && "def") || (this.schema && "schema") || required("needs schema or definition")
+    this.pointer = (this.def ? this.def : this.schema)
+  }
   edit(field) {
-    ({ $name: this.newField
-      ,$order: this.newFieldOrder
-      ,$subType: this.fieldSubtype
-      ,$params: this.newFieldParams} = field)
-    this.fieldBase = this.types[field.$type]  // in order to correctly reference subtypes..
-    field.$subType && (this.fieldSubtype = this.types[field.$type].$subTypes[field.$subType])
+    ({
+       $name: this.fieldName
+      ,$order: this.fieldOrder
+      ,$type: this.fieldTyping.base
+      ,$subType: this.fieldTyping.subT
+      ,$lookup: this.fieldTyping.lookup_table
+      ,$params: this.fieldParams
+    } = field)
     this.buttonText = "edit"
   }
   del() {
-    delete this.def.$fields[this.newField]
+    delete this.pointer.$fields[this.newField]
     this.signaler.signal("defUpdate")
   }
+  addScoped() {
+    this.addField({
+         $name: this.fieldName
+        ,$order: (!!this.fieldOrder && this.fieldOrder) || undefined
+        ,$type: this.fieldTyping.base
+        ,$subType: this.fieldTyping.subT
+        ,$lookup: this.fieldTyping.lookup_table
+        ,$params: this.fieldParams || undefined
+    })
+    this.clearScoped()
+  }
+  clearScoped() {
+    this.fieldName = null
+    this.fieldOrder = null
+    this.fieldTyping = {}
+    this.fieldParams = {}
+    this.buttonText = "add"
+    this.signaler.signal("defUpdate")
+    this.signaler.signal("typeSelectUpdate")
+  }
+  //Old
   fieldSubtypeChanged(newVal) {
     if(!newVal) {
       this.newFieldParams = undefined
@@ -30,23 +63,17 @@ export class Definition {
     }
     this.signaler.signal("defUpdate")
   }
-  addScoped(params) {
-    this.addField({ param:
-      { $name: this.newField,
-        $order: (!!this.newFieldOrder && this.newFieldOrder) || undefined,
-        $type: this.fieldBase,
-        $subType: this.fieldSubtype?.$name,
-        $params: this.newFieldParams || undefined}
-    })
-    this.clearScoped()
+  editOld(field) {
+    ({ $name: this.newField
+      ,$order: this.newFieldOrder
+      ,$subType: this.fieldSubtype
+      ,$params: this.newFieldParams} = field)
+    this.fieldBase = this.types[field.$type]  // in order to correctly reference subtypes..
+    field.$subType && (this.fieldSubtype = this.types[field.$type].$subTypes[field.$subType])
+    this.buttonText = "edit"
   }
-  clearScoped() {
-    this.newField = null
-    this.newFieldOrder = null
-    this.fieldBase = "Boolean"
-    this.fieldSubtype = null
-    this.newFieldParams = null
-    this.buttonText = "add"
-    this.signaler.signal("defUpdate")
-  }
+}
+
+const required = (message) => {
+  throw new Error(message)
 }

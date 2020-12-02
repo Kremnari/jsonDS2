@@ -1,37 +1,52 @@
-<template bindable="def, types, addField, signaler">
-  <require from="resources/viewSections/paramsDefine.html"></require>
-  <h4>${def.$name}</h4>
-  <span if.bind="def.$description">
+<template>
+  <require from="resources/viewElements/subTypeSelector" as="sub-type-selector"></require>
+  <h4>${pointer.$name}</h4>
+  <span if.bind="pointer.$description">
     Description:
-    <input type="text" value.bind="def.$description">
+    <input type="text" value.bind="pointer.$description">
   </span>
   <div note="define new field">
-    New Name:<input type="text" value.bind="newField">
-    Order: <input type="number" value.bind="newFieldOrder" min="0" step="1" max="100"><br>
-    Base:
-    <select value.bind="fieldBase" change.delegate="signaler.signal('defUpdate')">
-      <option repeat.for="type of types | objectValues" model.bind="type.$name">${type.$name}</option>
-    </select>
-    SubType:
-    <select value.bind="fieldSubtype">
-      <option model.bind="undefined">*base*</option>
-      <option repeat.for="subT of types[fieldBase].$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
-    </select>
-    <div if.bind="fieldSubtype.$params">
-      <div repeat.for="param of fieldSubtype.$params | objectValues">
-        ${param.$name}: <input type="text" value.bind="newFieldParams[param.$name]">
+    New Name:<input type="text" value.bind="fieldName">
+    Order: <input type="number" value.bind="fieldOrder" min="0" step="1" max="100"><br>
+    <input type="hidden" value.bind="(fieldTyping = {})">
+    <sub-type-selector typing.bind="fieldTyping"></sub-type-selector>
+    <div if.bind="fieldTyping.subT">
+      <input type="hidden" value.bind="(fieldParams = {})">
+      <div repeat.for="param of types[fieldTyping.base].$subTypes[fieldTyping.subT].$params | objectValues & signal:'typeSelectUpdate'">
+        ${param.$name}: <input type="text" value.bind="fieldParams[param.$name]">
+      </div>
+    </div>
+    <!--STS REPLACE START-->
+    <!--
+      vars: fieldBase : stores name
+      fieldSubtype : store object
+      newFieldParams[by param of subtype] : store text
+    -->
+    <!--
+    <div if.bind="fieldBase!='#table'">
+      SubType:
+      <select value.bind="fieldSubtype">
+        <option model.bind="undefined">*base*</option>
+        <option repeat.for="subT of types[fieldBase].$subTypes | objectValues & signal:'defUpdate'" model.bind="subT">${subT.$name}</option>
+      </select>
+      <div if.bind="fieldSubtype.$params">
+        <div repeat.for="param of fieldSubtype.$params | objectValues">
+          ${param.$name}: <input type="text" value.bind="newFieldParams[param.$name]">
+        </div>
       </div>
     </div>
     <br>
+    <!--STS REPLACE END-->
     <button click.delegate="addScoped()">${buttonText}</button>
     <button click.delegate="clearScoped()">Clear</button>
     <button if.bind="buttonText=='edit'" click.delegate="del()">Delete</button>
   </div>
-  <div repeat.for="field of def.$fields | objectValues | sorter:'$order':'ascending' & signal:'defUpdate'" click.trigger="edit(field)">
+  <div repeat.for="field of pointer.$fields | objectValues | sorter:'$order':'ascending' & signal:'defUpdate'" click.trigger="edit(field)">
     ${field.$name} ::
     <span if.bind="field.$subType">${field.$subType} &isinv; </span>
     ${field.$type}
-    <span repeat.for="param of field.$params| objectEntries">&cup; ${param[0]}@${param[1]}  </span>
+    <span if.bind="field.$lookup"> of ${field.$lookup}</span>
+    <span if.bind="field.$params" repeat.for="param of field.$params| objectEntries">&cup; ${param[0]}@${param[1]}  </span>
   </div>
 
 </template>

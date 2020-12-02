@@ -1,5 +1,5 @@
 <template bindable="type, subTypeOf, baseApp">
-  <require from="resources/viewElements/subTypeSelector.html" as="sub-type-selector"></require>
+  <require from="resources/viewElements/subTypeSelector" as="sub-type-selector"></require>
   <h5>
     Edit Type: ${type.$name}
     <span if.bind="subTypeOf">
@@ -24,13 +24,9 @@
     <p repeat.for="param of type.$params | objectValues & signal:'generalUpdate'">
       ${param.$name}:${param.$type}${param.$desc && " - "+param.$desc}
     </p>
-    New parameter:
+    New parameter:<br>
       <input type="hidden" value.bind="(newParamType = {})">
-      <sub-type-selector
-        typing.bind="newParamType"
-        signaler.bind="baseApp.signaler"
-        types.bind="baseApp.jDS2.types_list_base"
-      ></sub-type-selector>
+      <sub-type-selector typing.bind="newParamType"></sub-type-selector>
     named: <input type="text" value.bind="newParamName"><br>
     <input type="text" value.bind="newParamDesc" placeholder="description"><br>
     ${newParamType.base}<br>

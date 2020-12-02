@@ -43,12 +43,6 @@ var basicTypes = {
     },
     $validator: "true" 
   },
-  Enumerated: {
-     $name: "Enumerated"
-    ,$subTypes: {
-    }
-    ,$validator: "true"
-  }
 }
 var demoContents = {
   $tables: {
