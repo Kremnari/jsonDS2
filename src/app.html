@@ -58,18 +58,14 @@
       <section
         if.bind="editor.as == 'editSchema'"
         as-element="definition-editor"
-        def.bind="editor.schema"
-        types.bind="jDS2.types_list_base"
+        schema.bind="editor.schema"
         add-field.call="add('schema_field', param)"
-        signaler.bind="signaler"
       ></section>
       <section
         if.bind="editor.as == 'editDef'"
         as-element="definition-editor"
         def.bind="editor.def"
-        types.bind="jDS2.types_list_base"
         add-field.call="add('def_field', param)"
-        signaler.bind="signaler"
       ></section>
       <section
         as-element="type-editor"
@@ -101,7 +97,7 @@
       </div>
       <div id="viewDefsPane">
         <input type="text" value.bind="newDefName">
-        <button click.delegate="add('def', {name: newDefName})">+</button>
+        <button click.delegate="new('def', {name: newDefName})">+</button>
         <button click.delegate="edit('def', {name: newDefName})">-&gt;</button>
         <div repeat.for="defName of jDS2.defs_list & signal:'generalUpdate'" if.bind="jDS2">
             <span click.delegate="edit('def', {name: defName})">${defName}</span>

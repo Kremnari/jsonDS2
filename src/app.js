@@ -18,6 +18,7 @@ import {BindingSignaler} from 'aurelia-templating-resources'
 export class App {
   jDS2 = null
   editor = null
+  validatorsCache = {}
   basicTypes = ["Number", "String", "Boolean", "BigInt", "Object"]
   constructor(DS, BS) {
     window.jds2 = this
@@ -68,7 +69,7 @@ export class App {
     return Object.values(this.jDS2.tables_schema(t).$fields).every((f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
   isFieldValid(s_field, value) {
-    return this.validator(value, this.jDS2.types_get(s_field.$type, s_field.$subTypeName).$validator)
+    return this.validatorLookup(value, s_field)
   }
   async promptEditorSave() {
     if(this.suppressEditorSave) return Promise.resolve()
@@ -180,6 +181,7 @@ export class App {
       $name: params.newParamName
      ,$type: params.newParamType.base
      ,$subType: params.newParamType.subT
+     ,$lookup: params.newParamType.lookup_table
      ,$desc: params.newParamDesc
    }
    if(!this.editor.schema.$params) this.editor.schema.$params = {}
@@ -191,6 +193,14 @@ export class App {
         ,param: newParam
     })
     this.signaler.signal("generalUpdate")
+  }
+  new(objType, params) {
+    switch(objType) {
+      case "def":
+        this.jDS2.new('def', params.name, params)
+        this.signaler.signal("generalUpdate")
+        break;
+    }
   }
   //*Add should only affect editor
   //*Save should be used to push to the handler
@@ -271,12 +281,23 @@ export class App {
     return ret
   }
   validatorLookup(value, prop) { // Prop comes directly from the schema...
-    let types = this.jDS2.types_list_base
-    let tFn = types[prop.$type].$validator
-    let passT = Function('value', tFn)(value)
+    if(prop.$type=="#table") {
+      return Object.keys(this.jDS2.tables_content(prop.$lookup)).includes(value)
+    }
 
-    let sFn = types[prop.$type].$subTypes[prop.$subType]?.$validator
-    let passS = sFn ? Function('value', 'params', sFn)(value, prop.$params) : true
+    let types = this.jDS2.types_list_base
+    let fnTname = "type:"+prop.$type
+    if(!this.validatorsCache[fnTname]) {
+      this.validatorsCache[fnTname] = Function('value', "return "+types[prop.$type].$validator)
+    }
+    let passT = this.validatorsCache[fnTname](value)
+    if(!prop.$subType) return passT
+
+    let fnSname = fnTname+"UsubT:"+prop.$subType
+    if(!this.validatorsCache[fnSname]) {
+      this.validatorsCache[fnSname] = Function('value', 'params', "return "+types[prop.$type].$subTypes[prop.$subType].$validator)
+    }
+    let passS = this.validatorsCache[fnSname](value, prop.$params)
     return passT && passS
   }
   addField(name, type) {

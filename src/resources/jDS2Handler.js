@@ -10,7 +10,7 @@ export class jDS2Handler {
     }
   }
   //Adds a blank template
-  new(what, name, params) {
+  new(what, name, params = {}) {
     switch(what) {
       case "table":
         this.baseJSON.$tables[name] = {
@@ -25,6 +25,12 @@ export class jDS2Handler {
            $name: name
           ,$params: {}
           ,$validator: "return true"
+        }
+      case "def":
+        this.baseJSON.$definitions[name] = {
+           $name: name
+          ,$fields: params.$fields || {}
+          ,$description: params.$description || ""
         }
     }
   }
@@ -55,7 +61,7 @@ export class jDS2Handler {
     switch(what) {
       case "def":
         let defName = data.$name || data.name || data //Uggggly...
-        return this.baseJSON.$definitions[defName] || (this.add("def", defName ) && this.baseJSON.$definitions[defName])
+        return this.baseJSON.$definitions[defName] || (this.new("def", defName ) || this.baseJSON.$definitions[defName])
         break;
       case "schema":
         let schema = this.baseJSON.$schemas[data]
@@ -101,6 +107,12 @@ export class jDS2Handler {
   }
   get tables_list() {
     return Object.values(this.baseJSON.$tables)
+  }
+  get tables_list_base() {
+    return this.baseJSON.$tables
+  }
+  get tables_list_keys() {
+    return Object.keys(this.baseJSON.$tables)
   }
   get types_list() {
     return Object.values(this.baseJSON.$types)
