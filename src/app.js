@@ -284,6 +284,13 @@ export class App {
     if(prop.$type=="#table") {
       return Object.keys(this.jDS2.tables_content(prop.$lookup)).includes(value)
     }
+    if(prop.$type=="definition") {
+      let fields = Object.values(this.jDS2.get(["$definitions", prop.$lookup, "$fields"]))
+      for(let each of fields) {
+        
+      }
+      return true
+    }
 
     let types = this.jDS2.types_list_base
     let fnTname = "type:"+prop.$type

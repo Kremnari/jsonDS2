@@ -11,5 +11,6 @@ export class SubTypeSelector {
     this.signaler = App.signaler
     this.types = App.jDS2.types_list_base
     this.tables = App.jDS2.tables_list_keys
+    this.definitions = App.jDS2.defs_list_keys
   }
 }

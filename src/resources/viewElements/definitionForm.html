@@ -1,0 +1,10 @@
+<template>
+  <require from="resources/viewElements/typeInput" as="type-input"></require>
+  DefForm: ${definition.$name}
+  <div repeat.for="field of definition.$fields | objectValues">
+    <type-input
+      value.bind="value[field.$name]"
+      typing.bind="field"
+    ></type-input>
+  </div>
+</template>

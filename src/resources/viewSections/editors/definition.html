@@ -1,5 +1,6 @@
 <template>
   <require from="resources/viewElements/subTypeSelector" as="sub-type-selector"></require>
+  <require from="resources/viewElements/definitionForm" as="definition-form"></require>
   <h4>${pointer.$name}</h4>
   <span if.bind="pointer.$description">
     Description:
@@ -15,6 +16,13 @@
       <div repeat.for="param of types[fieldTyping.base].$subTypes[fieldTyping.subT].$params | objectValues & signal:'typeSelectUpdate'">
         ${param.$name}: <input type="text" value.bind="fieldParams[param.$name]">
       </div>
+    </div>
+    <div if.bind="fieldTyping.base=='#definition' && fieldTyping.lookup & signal:'lookupTrigger'">
+      <input type="hidden" value.bind="(fieldTyping.defFields = {})">
+      <definition-form
+        value.bind="fieldTyping.defFields"
+        def-name.bind="fieldTyping.lookup"
+      ></definition-form>
     </div>
     <!--STS REPLACE START-->
     <!--

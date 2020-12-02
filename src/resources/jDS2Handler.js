@@ -73,6 +73,11 @@ export class jDS2Handler {
         debugger;
      }
   }
+  get(pathArray) {
+    let at = this.baseJSON
+    pathArray.forEach((e) => at = at[e])
+    return at
+  }
   delete(what, who, where) {
     switch(what) {
       case "table":
@@ -120,7 +125,7 @@ export class jDS2Handler {
   get types_list_base() {
     return this.baseJSON.$types
   }
-  get defs_list() {
+  get defs_list_keys() {
     return Object.keys(this.baseJSON.$definitions)
   }
   /*TODO: Clean this up....

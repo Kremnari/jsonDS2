@@ -3,8 +3,9 @@
   <select value.bind="typing.base" change.trigger="signaler.signal('typeSelectUpdate')">
     <option repeat.for="type of types | objectValues" model.bind="type.$name">${type.$name}</option>
     <option value="#table">Table</option>
+    <option value="#definition">Definition</option>
   </select>
-  <div if.bind="typing.base && typing.base!='#table' & signal:'typeSelectUpdate'">
+  <div if.bind="typing.base && typing.base!='#table' && typing.base!='#definition' & signal:'typeSelectUpdate'">
     SubType:
     <select value.bind="typing.subT">
       <option model.bind="undefined">*base*</option>
@@ -13,8 +14,14 @@
   </div>
   <div if.bind="typing.base && typing.base=='#table' & signal:'typeSelectUpdate'">
     Select Table:
-    <select value.bind="typing.lookup_table">
+    <select value.bind="typing.lookup" change.trigger="lookupTrigger">
       <option repeat.for="t of tables" model.bind="t">${t}</option>
+    </select>
+  </div>
+  <div if.bind="typing.base && typing.base=='#definition' & signal: 'typeSelectUpdate'">
+    Select Definition:
+    <select value.bind="typing.lookup" change.trigger="lookupTrigger">
+      <option repeat.for="d of definitions" model.bind="d">${d}</option>
     </select>
   </div>
 </template>

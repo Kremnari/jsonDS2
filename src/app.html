@@ -99,7 +99,7 @@
         <input type="text" value.bind="newDefName">
         <button click.delegate="new('def', {name: newDefName})">+</button>
         <button click.delegate="edit('def', {name: newDefName})">-&gt;</button>
-        <div repeat.for="defName of jDS2.defs_list & signal:'generalUpdate'" if.bind="jDS2">
+        <div repeat.for="defName of jDS2.defs_list_keys & signal:'generalUpdate'" if.bind="jDS2">
             <span click.delegate="edit('def', {name: defName})">${defName}</span>
         </div>
       </div>

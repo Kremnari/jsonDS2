@@ -14,6 +14,10 @@ export class Definition {
     this.types = App.jDS2.types_list_base
     this.signaler = App.signaler
     this.addField = (param) => App.add(this.editType+'_field', param)
+    this.getDef = (def) => {
+        this.addDef = App.jDS2.get(["$definitions", def]);
+        this.fieldTyping.defFields = {}
+    }
   }
   bind() {
     this.editType = (this.def && "def") || (this.schema && "schema") || required("needs schema or definition")
@@ -25,7 +29,7 @@ export class Definition {
       ,$order: this.fieldOrder
       ,$type: this.fieldTyping.base
       ,$subType: this.fieldTyping.subT
-      ,$lookup: this.fieldTyping.lookup_table
+      ,$lookup: this.fieldTyping.lookup
       ,$params: this.fieldParams
     } = field)
     this.buttonText = "edit"
@@ -40,7 +44,7 @@ export class Definition {
         ,$order: (!!this.fieldOrder && this.fieldOrder) || undefined
         ,$type: this.fieldTyping.base
         ,$subType: this.fieldTyping.subT
-        ,$lookup: this.fieldTyping.lookup_table
+        ,$lookup: this.fieldTyping.lookup
         ,$params: this.fieldParams || undefined
     })
     this.clearScoped()
