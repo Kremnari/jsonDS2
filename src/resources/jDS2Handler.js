@@ -232,7 +232,7 @@ function Convert(j) {
   Object.entries(j).forEach( (k, v) => {
       console.log("adding key: "+k)
       out.new("table", k)
-    }
+  })
   console.log("Done")
   return out
 }
