@@ -42,7 +42,7 @@ export class App {
       this.jDS2 = new jDS2Handler(demoContents)
     }
   }
-  loadTFMG() {
+  async loadTFMG() {
     let response = await fetch('data_source.json')
     this.jDS2 = new jDS2Handler(response.json())
   }
