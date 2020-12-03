@@ -249,6 +249,7 @@ export class App {
         this.signaler.signal("generalUpdate")
         break;
       case 'schema':
+        // param.name is table name!
         if(!params.name || params.name==this.editor?.table) return
         this.editor = {
            as: "editSchema"
