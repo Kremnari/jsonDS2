@@ -1,5 +1,0 @@
-<template bindable="prop, type, target, validator, signal">
-  ${prop.$name} - ${prop.$type}
-  <input type="text" value.bind="target[prop.$name]" placeholder="${prop.$type} ${prop.$subType && '::'+prop.$subType}" changed.bind="signal()"></input>
-  <validator valid.bind="validator({value: target[prop.$name]}) & signal:'updateValids'"></validator>
-</template>

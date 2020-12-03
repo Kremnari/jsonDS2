@@ -7,7 +7,7 @@ import {bindable} from 'aurelia-templating'
 @inject(App) 
 export class SubTypeSelector {
   @bindable typing
-  @findable skip = []
+  @bindable skip = []
   constructor(App) {
     this.signaler = App.signaler
     this.types = App.jDS2.types_list_base

@@ -1,5 +1,5 @@
 import {App} from "app"
-import {inject} from 'aurelia-framework'
+import {inject, observable} from 'aurelia-framework'
 import {bindable} from 'aurelia-templating'
 
 @inject(App)
@@ -14,5 +14,8 @@ export class TypeInput {
     if(this.typing.$subType) {
       this.subType = this.baseApp.jDS2.get(["$types", this.typing.$type,"$subTypes", this.typing.$subType])
     }
+  }
+  valueChanged() {
+    this.baseApp.signaler.signal("updateValids")
   }
 }
