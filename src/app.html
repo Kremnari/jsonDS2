@@ -19,7 +19,7 @@
       <div repeat.for="t of jDS2.tables_list & signal:'generalUpdate'" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
         <validator valid.bind="isTableValid(t.$name) & signal:'updateValids'"></validator>
-        <span click.delegate="edit('schema', {name: t.$schema})">&#9998;</span>
+        <span click.delegate="edit('schema', {name: t})">&#9998;</span>
       </div>
     </section>
     <section id="editorArea" if.bind="editor.as">
