@@ -280,14 +280,15 @@ export class App {
     let ret = Function('value', fn)(value)
     return ret
   }
-  validatorLookup(value, prop) { // Prop comes directly from the schema...
+  validatorLookup(value, prop, debug = false) { // Prop comes directly from the schema...
+    if(debug) debugger
     if(prop.$type=="#table") {
       return Object.keys(this.jDS2.tables_content(prop.$lookup)).includes(value)
     }
     if(prop.$type=="definition") {
       let fields = Object.values(this.jDS2.get(["$definitions", prop.$lookup, "$fields"]))
       for(let each of fields) {
-        
+
       }
       return true
     }

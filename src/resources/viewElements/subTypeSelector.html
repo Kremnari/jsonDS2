@@ -2,8 +2,8 @@
   Base:
   <select value.bind="typing.base" change.trigger="signaler.signal('typeSelectUpdate')">
     <option repeat.for="type of types | objectValues" model.bind="type.$name">${type.$name}</option>
-    <option value="#table">Table</option>
-    <option value="#definition">Definition</option>
+    <option value="#table" if.bind="!skip.includes('table')">Table</option>
+    <option value="#definition" if.bind="!skip.includes('def')">Definition</option>
   </select>
   <div if.bind="typing.base && typing.base!='#table' && typing.base!='#definition' & signal:'typeSelectUpdate'">
     SubType:

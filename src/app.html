@@ -3,7 +3,7 @@
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/viewSections/editors/type.html" as="type-editor"></require>
   <require from="resources/viewSections/editors/definition" as="definition-editor"></require>
-  <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
+  <require from="resources/viewElements/typeInput" as="type-input"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
     <button click.delegate="saveProject()">Save...</button>
@@ -39,15 +39,10 @@
 
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
-          <div repeat.for="prop of editor.schema.$fields | objectValues">
-            <div
-              as-element="contentPropertyLine"
-              prop.bind="prop"
-              type.bind="jDS2.types_get(prop.$type, prop.$subType)"
-              target.bind="editor.CIEdit.$props"
-              validator.call="validatorLookup(value, prop)"
-              signal.call="signaler.signal('updateValids')"
-            ></div>
+          <div repeat.for="prop of editor.schema.$fields | objectValues"> 
+            ${prop.$name} - ${prop.$type}
+            <type-input value.two-way="editor.CIEdit.$props[prop.$name]" typing.bind="prop"></type-input>
+            <validator valid.bind="validatorLookup(editor.CIEdit.$props[prop.$name], prop) & signal:'updateValids'"></validator>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
           <button click.delegate="editorDelete()">Delete</button>
