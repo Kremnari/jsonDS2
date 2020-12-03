@@ -83,6 +83,7 @@ export class jDS2Handler {
       case "table":
         //TODO Protect this from multiple tables sharing a schema...
         //TODO ...NYI, as there's no way to Multiple In Single Out this right now...
+        //!   I.E.  there's no built in copy function
         delete this.baseJSON.$schemas[this.baseJSON.$tables[who].$schema]
         delete this.baseJSON.$tables[who]
         break;
@@ -94,6 +95,7 @@ export class jDS2Handler {
         break;
       case "schema":
         //Umm.... no... schemas should be edited only
+        //these deletes should be handled at the table level
         break;
     }
   }
