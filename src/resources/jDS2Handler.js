@@ -233,6 +233,6 @@ function Convert(j) {
       console.log("adding key: "+k)
       out.new("table", k)
     }
-  comsole.log("Done")
+  console.log("Done")
   return out
 }
