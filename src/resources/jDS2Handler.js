@@ -8,7 +8,7 @@ export class jDS2Handler {
       ,$schemas: {}
       ,$types: {}
     }
-    if(!(json.$tables || json.$version)) json = _Convert(json)
+    if(!(json.$tables || json.$version)) json = Convert(json)
     
     this.baseJSON = json
   }
@@ -226,7 +226,7 @@ export class jDS2Handler {
   }
 }
 
-Function _Convert(j) {
+Function Convert(j) {
   console.log("Beginning conversion")
   let out = new jDS2Handler()
   Object.entries(j).forEach( (k, v) => {
