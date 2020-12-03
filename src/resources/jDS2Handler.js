@@ -64,7 +64,7 @@ export class jDS2Handler {
         return this.baseJSON.$definitions[defName] || (this.new("def", defName ) || this.baseJSON.$definitions[defName])
         break;
       case "schema":
-        let schema = this.baseJSON.$schemas[data]
+        let schema = this.baseJSON.$schemas[this.baseJSON.$tables[data].$schema]
         if(!schema) throw new ReferenceError("Cannot locate schema to edit....")
         return JSON.parse(JSON.stringify(schema))
         break
