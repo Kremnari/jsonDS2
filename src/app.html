@@ -3,7 +3,7 @@
   <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/viewSections/editors/type.html" as="type-editor"></require>
   <require from="resources/viewSections/editors/definition" as="definition-editor"></require>
-  <require from="resources/viewElements/contentPropertyLine.html" as="contentPropertyLine"></require>
+  <require from="resources/viewElements/typeInput" as="type-input"></require>
   <nav>
     <button click.delegate="loadProject()">Load...</button>
     <button click.delegate="saveProject()">Save...</button>
@@ -42,6 +42,7 @@
           <div repeat.for="prop of editor.schema.$fields | objectValues">
             ${prop.$name} - ${prop.$type}
             <type-input value.bind="editor.CIedit.$props[prop.$name]" typing.bind="prop"></type-input>
+            <validator valid.bind="validatorLookup(editor.CIedit.$props[prop.$name], prop) & signal:'updateValids'"></validator>
             <!--div
               as-element="contentPropertyLine"
               prop.bind="prop"
