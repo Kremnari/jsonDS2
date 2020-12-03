@@ -40,14 +40,16 @@
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
           <div repeat.for="prop of editor.schema.$fields | objectValues">
-            <div
+            ${prop.$name} - ${prop.$type}
+            <type-input value.bind="editor.CIedit.$props[prop.$name]" typing.bind="prop"></type-input>
+            <!--div
               as-element="contentPropertyLine"
               prop.bind="prop"
               type.bind="jDS2.types_get(prop.$type, prop.$subType)"
               target.bind="editor.CIEdit.$props"
               validator.call="validatorLookup(value, prop)"
               signal.call="signaler.signal('updateValids')"
-            ></div>
+            ></div -->
           </div>
           <button click.delegate="storeContentItem()">Store</button>
           <button click.delegate="editorDelete()">Delete</button>
