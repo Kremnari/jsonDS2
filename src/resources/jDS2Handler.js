@@ -226,7 +226,7 @@ export class jDS2Handler {
   }
 }
 
-Function Convert(j) {
+function Convert(j) {
   console.log("Beginning conversion")
   let out = new jDS2Handler()
   Object.entries(j).forEach( (k, v) => {
