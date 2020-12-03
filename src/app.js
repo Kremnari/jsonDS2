@@ -25,7 +25,7 @@ export class App {
     this.dialogService = DS
     this.signaler = BS
     this.baseApp = this // To be able to pass into custom elements
-    setTimeout(() => {this.defaultLoad()}, 0)
+    setTimeout(() => {this.defaultLoad()}, 0) // Hack for browser sync desync
   }
   async defaultLoad() {
     try {
@@ -41,6 +41,10 @@ export class App {
     } catch(e) {
       this.jDS2 = new jDS2Handler(demoContents)
     }
+  }
+  loadTFMG() {
+    let response = await fetch('data_source.json')
+    this.jDS2 = new jDS2Handler(response.json())
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {

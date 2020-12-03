@@ -3,11 +3,14 @@ const required = (message) => {
 }
 export class jDS2Handler {
   constructor(json) {
-    this.baseJSON = json || {
+    json = json || {
        $tables: {}
       ,$schemas: {}
       ,$types: {}
     }
+    if(!(json.$tables || json.$version)) json = _Convert(json)
+    
+    this.baseJSON = json
   }
   //Adds a blank template
   new(what, name, params = {}) {
@@ -221,4 +224,15 @@ export class jDS2Handler {
     if(!subT) return at
     return at.$subTypes[subT]
   }
+}
+
+Function _Convert(j) {
+  console.log("Beginning conversion")
+  let out = new jDS2Handler()
+  Object.entries(j).forEach( (k, v) => {
+      console.log("adding key: "+k)
+      out.new("table", k)
+    }
+  comsole.log("Done")
+  return out
 }
