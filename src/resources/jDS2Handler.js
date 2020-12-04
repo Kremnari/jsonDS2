@@ -1,16 +1,27 @@
+import {basicTypes} from "resources/schema/defaults.js"
+
 const required = (message) => {
   throw new Error(message)
 }
 export class jDS2Handler {
+  static build(json) {
+    if(!(json.$tables || json.$version)) {
+      console.log('converting')
+      return Convert(json)
+    } else {
+      console.log('valid')
+      return new jDS2Handler(json)
+    }
+  }
+  baseJSON
   constructor(json) {
     json = json || {
-       $tables: {}
-      ,$schemas: {}
-      ,$types: {}
-    }
-    if(!(json.$tables || json.$version)) json = Convert(json)
-    
-    this.baseJSON = json
+      $tables: {}
+     ,$schemas: {}
+     ,$types: basicTypes
+     ,$definitions: {}
+   }
+   this.baseJSON = json
   }
   //Adds a blank template
   new(what, name, params = {}) {
@@ -42,6 +53,7 @@ export class jDS2Handler {
     //TODO add default "base" version of each based on what's inbound from data
     // in other words, don't just assume data.param is a correct data structure??
     // too much shorthand above
+    let base;
     switch(what) {
       case "subType_param":
         this.baseJSON.$types[data.subOf].$subTypes[data.to].$params[data.param.$name] = data.param
@@ -50,10 +62,24 @@ export class jDS2Handler {
         this.baseJSON.$types[data.to].$subTypes[data.param.$name] = data.param
         break;
       case "def":
-        let base = data.$name ? data : {
+        base = data.$name ? data : {
           $name: data.name || data || required("Name Required")
         }
         this.baseJSON.$definitions[base.$name] = base
+        break;
+      case "content": 
+        this.baseJSON.$tables[data.to].$contents[data.name] = {
+           $name: data.name
+          ,$props: data.fields
+        }
+        break;
+      case "schema_field":
+        base = {
+           $name: data.name || required("Name required")
+          ,$type: data.type || ""
+          ,$order: data.order || 0
+        }
+        this.baseJSON.$schemas[data.where].$fields[data.name] = base
         break;
       default:
         console.log("%cdefine add behaviour", "color: orange; background: lightgrey")
@@ -229,10 +255,24 @@ export class jDS2Handler {
 function Convert(j) {
   console.log("Beginning conversion")
   let out = new jDS2Handler()
-  Object.entries(j).forEach( (k, v) => {
+
+  Object.entries(j).forEach( ([k, ts]) => {
       console.log("adding key: "+k)
       out.new("table", k)
+      Object.entries(ts).forEach( ([item, fields], idx) => {
+        if(idx==0) {
+          Object.entries(fields).forEach(([field, value]) => {
+            out.add("schema_field", {where: k, name: field, type: TypeOf(value)})
+          })
+        }
+        out.add("content", {to: k, name: item, fields})
+      })
+
   })
   console.log("Done")
   return out
+}
+
+function TypeOf(value) {
+  return "String"
 }

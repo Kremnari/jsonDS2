@@ -30,14 +30,15 @@
           <input type="text" value.bind="newContentName"></input>
           <button click.delegate="addNewContentItem(newContentName)">+</button>
         </div>
-        <ul>
-          <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'">
-            <span click.delegate="editContentItem(contentItem)">${editor.list[contentItem].$name}</span>
-            <validator valid.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'"></validator>
-            <button click.delegate="editorDelete(contentItem)">&#x2327;</button>
-          </li>
-        </ul>
-
+        <div class="contentList">
+          <ul>
+            <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'">
+              <span click.delegate="editContentItem(contentItem)">${editor.list[contentItem].$name}</span>
+              <validator valid.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'"></validator>
+              <button click.delegate="editorDelete(contentItem)">&#x2327;</button>
+            </li>
+          </ul>
+        </div>
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
           <div repeat.for="prop of editor.schema.$fields | objectValues"> 
@@ -49,7 +50,6 @@
           <button click.delegate="editorDelete()">Delete</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
         </div>
-
       </section>
       <section
         if.bind="editor.as == 'editSchema'"

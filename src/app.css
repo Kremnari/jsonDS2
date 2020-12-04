@@ -33,16 +33,26 @@ div.content {
   height: 70%;
   width: 60%;
 }
+#editorArea section {
+  position: relative;
+  height: 80%;
+}
 #editorArea ul {
-  height: 35%;
   left: 0;
   right: 0;
-  width: 40%;
   position: relative;  
-  columns: 2;
+  padding: 0px;
+  column-count: 2;
+  overflow: auto;
+}
+#editorArea .contentList {
+  height: 40%;
+  overflow: hidden;
+  overflow-y: auto;
+  position: relative;
 }
 #editorArea ul li {
-  display: inline;
+  display: inline-block;
 }
 #editorArea #CIEditor {
   position: absolute;

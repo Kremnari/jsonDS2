@@ -44,7 +44,7 @@ export class App {
   }
   async loadTFMG() {
     let response = await fetch('data_source.json')
-    this.jDS2 = new jDS2Handler(response.json())
+    this.jDS2 = jDS2Handler.build(await response.json())
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
@@ -69,6 +69,7 @@ export class App {
     return Object.values(this.jDS2.tables_content(t)).every((ci) => this.isContentValid(t, ci))
   }
   isContentValid(t, ci) {
+    if(!t || !ci) { debugger }
     if(typeof ci=="string") ci = this.jDS2.tables_content(t)[ci]
     return Object.values(this.jDS2.tables_schema(t).$fields).every((f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
