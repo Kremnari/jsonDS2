@@ -70,9 +70,11 @@
         base-app.bind="baseApp"
         sub-type-of.bind="editor.subTypeOf"
       ></section>
-      <button click.delegate="editorCancel()">Cancel</button>
-      <button click.delegate="editorDelete()">Delete</button>
-      <button click.delegate="editorSave()">Save</button>
+      <div class="editorControls">
+        <button click.delegate="editorCancel()">Cancel</button>
+        <button click.delegate="editorDelete()">Delete</button>
+        <button click.delegate="editorSave()">Save</button>
+      </div>
     </section>
     <section id="typesList">
       <input class="sectionLinked" type="radio" name="typeOrDefs" id="viewTypes" checked>
@@ -99,9 +101,6 @@
             <span click.delegate="edit('def', {name: defName})">${defName}</span>
         </div>
       </div>
-    </section>
-    <section id="somethingsomethingdarkside">
-
     </section>
   </div>
 </template>

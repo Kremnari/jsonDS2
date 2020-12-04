@@ -259,20 +259,43 @@ function Convert(j) {
   Object.entries(j).forEach( ([k, ts]) => {
       console.log("adding key: "+k)
       out.new("table", k)
+      let fieldCache = {}
+      let defCache = {}
       Object.entries(ts).forEach( ([item, fields], idx) => {
-        if(idx==0) {
-          Object.entries(fields).forEach(([field, value]) => {
-            out.add("schema_field", {where: k, name: field, type: TypeOf(value)})
-          })
-        }
+        //TODO need to keep track of potentially changing fields
+        //TODO need to create def for 
+        Object.entries(fields).forEach(([field, value]) => {
+          if(!fieldCache[field]) fieldCache[field] = []
+          let type = TypeOf(value)
+          if(type=="Object") {
+            defCache[t+"."+field] = CreateDefinition(value)
+          } else {
+            if(fieldCache[field].indexOf(type)===-1) fieldCache[field].push(type)
+          }
+        })
         out.add("content", {to: k, name: item, fields})
       })
-
+      Object.entries(fieldCache).forEach(([field, types]) => {
+        let type = "String"
+        if(types.length>1) debugger
+        else type = types[0]
+        out.add("schema_field", {where: k, name: field, type: type})
+      })
   })
   console.log("Done")
   return out
 }
+function CreateDefinition(obj) {
+  let def = []
+  Object.entries(obj).forEach(([key, value]) => {
+    
+  })
+  return def
+}
 
+//TODO need to be able to determine what's in arrays
 function TypeOf(value) {
-  return "String"
+  let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
+  if(type=="Array") {}
+  return type
 }
