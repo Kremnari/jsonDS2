@@ -261,14 +261,35 @@ function Convert(j) {
       out.new("table", k)
       let fieldCache = {}
       let defCache = {}
+      function CreateDefinition(obj, defName) {
+        let def = []
+        console.log('atDef')
+        debugger
+        Object.entries(obj).forEach(([key, value]) => {
+      
+        })
+        defCache[defName] = def
+      }
+      function TypeOf(value) {
+        let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
+        if(type=="Array") {
+          type += ":"+TypeOf(value[0])
+          console.log('atArray::'+type)
+        }
+        if(type=="Object") {
+          console.log("object")
+          console.log(value)
+        }
+        return type
+      }
       Object.entries(ts).forEach( ([item, fields], idx) => {
         //TODO need to keep track of potentially changing fields
         //TODO need to create def for 
         Object.entries(fields).forEach(([field, value]) => {
           if(!fieldCache[field]) fieldCache[field] = []
-          let type = TypeOf(value)
+          let type = TypeOf(value, out)
           if(type=="Object") {
-            defCache[t+"."+field] = CreateDefinition(value)
+            defCache[k+"."+field] = CreateDefinition(value, )
           } else {
             if(fieldCache[field].indexOf(type)===-1) fieldCache[field].push(type)
           }
@@ -277,25 +298,18 @@ function Convert(j) {
       })
       Object.entries(fieldCache).forEach(([field, types]) => {
         let type = "String"
-        if(types.length>1) debugger
-        else type = types[0]
-        out.add("schema_field", {where: k, name: field, type: type})
+        if(types.length==1) {
+          if(types[0].indexOf("Array")>-1) {
+            console.log('field contains array: '+field+" of "+JSON.stringify(types))
+            debugger
+          } else {
+            out.add("schema_field", {where: k, name: field, type: types[0]})
+          }
+        } else {
+          //multiple types for the field detected
+        }
       })
   })
   console.log("Done")
   return out
-}
-function CreateDefinition(obj) {
-  let def = []
-  Object.entries(obj).forEach(([key, value]) => {
-    
-  })
-  return def
-}
-
-//TODO need to be able to determine what's in arrays
-function TypeOf(value) {
-  let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
-  if(type=="Array") {}
-  return type
 }
