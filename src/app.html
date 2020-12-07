@@ -14,12 +14,25 @@
       <h4>Table/Object List</h4>
       <div note="add new static content table">
         <input type="text" value.bind="newTable"></input>
-        <button click.delegate="add('table', {name: newTable})">+&gt;</button>
+        <label for="subTables">SubTables?</label><input type="checkbox" checked.bind="subTables" id="subTables">
+        <button click.delegate="add('table', {name: newTable, subTables })">+&gt;</button>
       </div>
       <div repeat.for="t of jDS2.list(['$tables'], 'values') & signal:'generalUpdate'" if.bind="jDS2">
-        <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
-        <validator valid.bind="isTableValid(t.$name) & signal:'updateValids'"></validator>
-        <span click.delegate="edit('schema', {name: t.$name})">&#9998;</span>
+        <div if.bind="t.$contents">
+          <span click.delegate="show('table', {name: t.$name})">${t.$name}</span>
+          <validator valid.bind="isTableValid(t.$name) & signal:'updateValids'"></validator>
+          <span click.delegate="edit('schema', {name: t.$name})">&#9998;</span>
+        </div>
+        <div if.bind="t.$subTables">
+          <span style="text-decoration: underline;">${t.$name}</span>
+          <span click.delegate="add('subTable', {base: t.$name})">new...</span>
+          <span click.delegate="edit('schema', {name: t.$name})">&#9998;</span>
+          <div repeat.for="sT of jDS2.list(['$tables', t.$name, '$subTables'], 'keys') & signal:'generalUpdate'">
+            <span click.delegate="show('subTable', {base: t.$name, sub: sT})">${sT}</span>
+            <validator valid.bind="isTableValid(t.$name, sT) & signal:'updateValids'"></validator>
+          </div>
+        </div>
+        <hr>
       </div>
     </section>
     <section id="editorArea" if.bind="editor.as">

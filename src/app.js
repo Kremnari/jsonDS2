@@ -70,8 +70,11 @@ export class App {
       }
     })
   }
-  isTableValid(t) {
-    return this.jDS2.list(["$tables", t, "$contents"], "values").every((ci) => this.isContentValid(t, ci))
+  isTableValid(t, sT) {
+    let pathArray = ["$tables", t, "$contents"]
+    if(sT) pathArray.splice(-1, 1, "$subTables", sT)
+    console.log(pathArray)
+    return this.jDS2.list(pathArray, "values").every((ci) => this.isContentValid(t, ci))
   }
   isContentValid(t, ci) {
     if(!t || !ci) return
@@ -187,8 +190,30 @@ export class App {
     }
     this.signaler.signal("generalUpdate")
   }
-  async showTableContent(tableName) {
+  async show(type, params) {
+    //TODO better save_prompt logic
     await this.promptEditorSave()
+    switch(type) {
+      case "table":
+        this.editor = {
+          as: "list"
+          ,table: params.name
+          ,list: this.jDS2.get(["$tables",params.name, "$contents"])
+          ,schema: this.jDS2.get(["$schemas", params.name])
+        }
+        break;
+      case "subTable":
+        this.editor = {
+          as: "list"
+          ,table: params.sub
+          ,subOf: params.name
+          ,list: this.jDS2.get(["$tables", params.base, "$subTables", params.sub])
+          ,schema: this.jDS2.get(["$schemas", params.base])
+        }
+        break;
+    }
+  }
+  async showTableContent(tableName) {
     this.editor = {
       as: "list"
       ,table: tableName
@@ -238,27 +263,29 @@ export class App {
         if(!params) return
         //TODO move jDS2 push to save()
         this.jDS2.add('def', params)
-        this.signaler.signal("generalUpdate")
         break;
       case 'def_field':
         if(!params.$name) return 
         this.editor.def.$fields[params.$name] = params
-        this.signaler.signal("generalUpdate")
-        this.signaler.signal("defUpdate")
         break;
       case 'schema_field':
         if(!params.$name) return
         this.editor.schema.$fields[params.$name] = params
-        this.signaler.signal("generalUpdate")
-        this.signaler.signal("defUpdate")
         break;
       case 'table':
         if(!params.name) return
-        this.jDS2.new('table', params.name)
-        this.edit('schema', params)
+        this.jDS2.new('table', params.name, params)
+        //this.edit('schema', params)
+        break;
+      case "subTable":
+        let subTName = prompt("Enter name for new subTable")
+        if(!subTName) return
+        this.jDS2.add("subTable", {base: params.base, name: subTName})
         break;
     }
-  }
+    this.signaler.signal("generalUpdate")
+    this.signaler.signal("defUpdate")
+}
   //*should be a jDS2 pull
   async edit(objType, params) {
     await this.promptEditorSave()

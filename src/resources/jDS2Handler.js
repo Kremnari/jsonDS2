@@ -30,7 +30,8 @@ export class jDS2Handler {
         this.baseJSON.$tables[name] = {
            $name: name
           ,$schema: name
-          ,$contents: {}
+          ,$contents: params.subTables && undefined
+          ,$subTables: params.subTables && {}
         }
         this.baseJSON.$schemas[name] = { $name: name, $fields: {}}
         break;
@@ -81,6 +82,9 @@ export class jDS2Handler {
         }
         this.baseJSON.$schemas[data.where].$fields[data.name] = base
         break;
+      case "subTable":  
+        this.baseJSON.$tables[data.base].$subTables[data.name] = {}
+        break;
       default:
         console.log("%cdefine add behaviour", "color: orange; background: lightgrey")
         debugger;
@@ -113,6 +117,7 @@ export class jDS2Handler {
     //@kve enum = ["keys", "values", "entries", "object"]
     let at = this.baseJSON
     if(typeof pathArray == "string") pathArray = pathArray.split("/")
+    //console.log(pathArray)
     pathArray.forEach((e) => at = at[e])
     return Object[kve](at)
   }
@@ -123,7 +128,7 @@ export class jDS2Handler {
     pathArray.forEach((e) => at = at[e])
     return ref ? at : JSON.parse(JSON.stringify(at))
   }
-  delete(what, who, where) {
+  delete(what, who, params) {
     switch(what) {
       case "table":
         //TODO Protect this from multiple tables sharing a schema...
@@ -133,7 +138,7 @@ export class jDS2Handler {
         delete this.baseJSON.$tables[who]
         break;
       case "contentItem":
-        delete this.baseJSON.$tables[where].$contents[who]
+        delete this.baseJSON.$tables[params].$contents[who]
         break;
       case "def":
         delete this.baseJSON.$definitions[who.$name || who]
