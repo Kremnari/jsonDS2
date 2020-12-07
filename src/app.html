@@ -1,6 +1,5 @@
 <template>
   <require from="app.css"></require>
-  <require from="resources/elements/typeFields/selector.html" as="field-selector"></require>
   <require from="resources/viewSections/editors/type.html" as="type-editor"></require>
   <require from="resources/viewSections/editors/definition" as="definition-editor"></require>
   <require from="resources/viewElements/typeInput" as="type-input"></require>
@@ -17,7 +16,7 @@
         <input type="text" value.bind="newTable"></input>
         <button click.delegate="add('table', {name: newTable})">+&gt;</button>
       </div>
-      <div repeat.for="t of jDS2.tables_list & signal:'generalUpdate'" if.bind="jDS2">
+      <div repeat.for="t of jDS2.list(['$tables'], 'values') & signal:'generalUpdate'" if.bind="jDS2">
         <span click.delegate="showTableContent(t.$name)">${t.$name}</span>
         <validator valid.bind="isTableValid(t.$name) & signal:'updateValids'"></validator>
         <span click.delegate="edit('schema', {name: t.$name})">&#9998;</span>
@@ -28,21 +27,21 @@
         <div>
           Add new Name:
           <input type="text" value.bind="newContentName"></input>
-          <button click.delegate="addNewContentItem(newContentName)">+</button>
+          <button click.delegate="editor.CIEdit = {$name: newContentName, $props: {}}">+</button>
         </div>
         <div class="contentList">
           <ul>
-            <li repeat.for="contentItem of editor.list | objectKeys & signal:'updateValids'">
-              <span click.delegate="editContentItem(contentItem)">${editor.list[contentItem].$name}</span>
-              <validator valid.bind="isContentValid(editor.table, editor.list[contentItem]) & signal:'updateValids'"></validator>
-              <button click.delegate="editorDelete(contentItem)">&#x2327;</button>
+            <li repeat.for="contentItem of editor.list | objectValues & signal:'updateValids'">
+              <span click.delegate="editorGet(contentItem.$name)">${contentItem.$name}</span>
+              <validator valid.bind="isContentValid(editor.table, contentItem) & signal:'updateValids'"></validator>
+              <button click.delegate="editorDelete(contentItem.$name)">&#x2327;</button>
             </li>
           </ul>
         </div>
         <div id="CIEditor" if.bind="editor.CIEdit">
           ${editor.CIEdit.$name}
           <div repeat.for="prop of editor.schema.$fields | objectValues"> 
-            ${prop.$name} - ${prop.$type}
+            ${prop.$name} - 
             <type-input value.two-way="editor.CIEdit.$props[prop.$name]" typing.bind="prop"></type-input>
             <validator valid.bind="validatorLookup(editor.CIEdit.$props[prop.$name], prop) & signal:'updateValids'"></validator>
           </div>
@@ -86,7 +85,7 @@
           <input type="text" value.bind="newTypeName"></input>
           <button click.delegate="editTypeOf(newTypeName)">+</button>
         </div>
-        <div repeat.for="type of jDS2.types_list" if.bind="jDS2">
+        <div repeat.for="type of jDS2.list(['$types'], 'values')" if.bind="jDS2">
           <span click.delegate="editTypeOf(type.$name)">${type.$name}</span>
           <div repeat.for="subT of type.$subTypes | objectValues & signal:'generalUpdate'" if.bind="type.$subTypes">
             <span click.delegate="editTypeOf(type.$name, subT.$name)">&nbsp;-&nbsp;${subT.$name}</span>
@@ -97,7 +96,7 @@
         <input type="text" value.bind="newDefName">
         <button click.delegate="new('def', {name: newDefName})">+</button>
         <button click.delegate="edit('def', {name: newDefName})">-&gt;</button>
-        <div repeat.for="defName of jDS2.defs_list_keys & signal:'generalUpdate'" if.bind="jDS2">
+        <div repeat.for="defName of jDS2.list(['$definitions'], 'keys') & signal:'generalUpdate'" if.bind="jDS2">
             <span click.delegate="edit('def', {name: defName})">${defName}</span>
         </div>
       </div>

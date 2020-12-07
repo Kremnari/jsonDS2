@@ -1,5 +1,24 @@
 <template>
   <!-- span>${type.$name}
     ${subType.$name}</span -->
-  <input type="text" value.bind="value">
+  <div if.bind="control=='definition'">
+    <span click.delegate="toggleSub()">Definition::${typing.$lookup}</span>
+    <div show.bind="collapseMe">
+      <div repeat.for="each of defLines">
+        ${each.$name}: 
+        <type-input value.two-way="value[each.$name]" typing.bind="each"></type-input>
+      </div>
+    </div>
+  </div>
+  <div if.bind="control=='table'">
+    Table:${typing.$lookup}
+    <select value.bind="value">
+      <option repeat.for="e of elements" model.bind="e">${e}</option>
+      <!--NYI need to add a "new"-->
+    </select>
+  </div>
+  <div if.bind="control=='basic'">
+    ${$type.$name}
+    <input type="text" value.bind="value">
+  </div>
 </template>

@@ -57,7 +57,7 @@ var demoContents = {
           }
         }
       },
-      $schema: 'test1'
+      $schema: 'test'
     }, 
     test2: {
       $name: "test2",
@@ -66,8 +66,8 @@ var demoContents = {
     },
   },
   $schemas: {
-    test1: {
-      $name: 'test1'
+    test: {
+      $name: 'test'
       ,$fields: {
         id: {
           $name: 'id'
@@ -96,6 +96,16 @@ var demoContents = {
            }
            ,$desc: "tests in range of 0 and 10"
          }
+        ,beta: {
+           $name: 'beta'
+          ,$type: "#table"
+          ,$lookup: "test"
+        }
+        ,where: {
+           $name: "where"
+          ,$type: "#definition"
+          ,$lookup: "address"
+        }
       }
     }
   },

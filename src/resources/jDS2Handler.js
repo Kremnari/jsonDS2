@@ -34,6 +34,8 @@ export class jDS2Handler {
         }
         this.baseJSON.$schemas[name] = { $name: name, $fields: {}}
         break;
+      case "type":
+        return (this.baseJSON.$types[name] = {$name: name, $subTypes: {}, $validator: "true"})
       case "subType":
         this.baseJSON.$types[params.to].$subTypes[name] = {
            $name: name
@@ -68,10 +70,8 @@ export class jDS2Handler {
         this.baseJSON.$definitions[base.$name] = base
         break;
       case "content": 
-        this.baseJSON.$tables[data.to].$contents[data.name] = {
-           $name: data.name
-          ,$props: data.fields
-        }
+      case "contentItem":
+        this.baseJSON.$tables[data.to].$contents[data.item.$name] = data.item
         break;
       case "schema_field":
         base = {
@@ -90,22 +90,38 @@ export class jDS2Handler {
     switch(what) {
       case "def":
         let defName = data.$name || data.name || data //Uggggly...
-        return this.baseJSON.$definitions[defName] || (this.new("def", defName ) || this.baseJSON.$definitions[defName])
-        break;
+        let def = this.baseJSON.$definitions[defName] || (this.new("def", defName ) || this.baseJSON.$definitions[defName])
+        return JSON.parse(JSON.stringify(def))
       case "schema":
         let schema = this.baseJSON.$schemas[this.baseJSON.$tables[data].$schema]
         if(!schema) throw new ReferenceError("Cannot locate schema to edit....")
         return JSON.parse(JSON.stringify(schema))
-        break
+      case "type":
+        let typing = this.baseJSON.$types[data.type]
+        typing ||= this.new("type", data.type)
+        if(data.subT) {
+          typing = typing.$subTypes[data.subT]
+          typing ||= this.new("subType", data.subT, {to: data.type})
+        }
+        return JSON.parse(JSON.stringify(typing))
       default:
         console.log("%cdefine edit behaviour", "color: orange; background: lightgrey")
         debugger;
      }
   }
-  get(pathArray) {
+  list(pathArray, kve = "keys") {
+    //@kve enum = ["keys", "values", "entries", "object"]
     let at = this.baseJSON
+    if(typeof pathArray == "string") pathArray = pathArray.split("/")
     pathArray.forEach((e) => at = at[e])
-    return at
+    return Object[kve](at)
+  }
+  get(pathArray, ref = false) {
+    //@ref if false, returns a clone ("read only")
+    let at = this.baseJSON
+    if(typeof pathArray == "string") pathArray = pathArray.split("/")
+    pathArray.forEach((e) => at = at[e])
+    return ref ? at : JSON.parse(JSON.stringify(at))
   }
   delete(what, who, where) {
     switch(what) {
@@ -130,11 +146,18 @@ export class jDS2Handler {
   }
   save(what, data) {
     switch(what) {
+      case "contents":
+        this.baseJSON.$tables[data.where].$contents = data.contents
       case "def":
         this.baseJSON.$definitions[data.$name] = data
         break;
       case "schema":
         this.baseJSON.$schemas[data.$name] = data
+        break;
+      case "type":
+        data.subOf
+          ? this.baseJSON.$types[data.subOf].$subTypes[data.schema.$name]
+          : this.baseJSON.$types[data.schema.$name] = data.schema
         break;
       default:
         console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
@@ -159,156 +182,69 @@ export class jDS2Handler {
   get defs_list_keys() {
     return Object.keys(this.baseJSON.$definitions)
   }
-  /*TODO: Clean this up....
-    I should've just used a single get/put scheme,
-    and validated contents based on a defining schema....
-    Once this project is initially complete, I can use this
-    to create a definition schema instead of the default.js/demo 
-  */
-  tables_new(name) {
-    // 28-NOV-20
-    console.log("depreciated.. trace and update")
-    debugger
-    this.new("table", name)
-  }
-  tables_content(which) {
-    return this.baseJSON.$tables[which].$contents
-  }
-  tables_schema(which) {
-    return this.schema_def(this.baseJSON.$tables[which].$schema)
-  }
-  tables_saveContent(which, data) {
-    this.baseJSON.$tables[which].$contents = data
-  }
-  tables_saveContentItem(table, name, data) {
-    this.baseJSON.$tables[table].$contents[name] = data
-  }
-
-  schemas_edit(table) {
-    let schemaName = this.baseJSON.$tables[table].$schema
-    if(!this.baseJSON.$schemas[schemaName])
-        this.schemas_new(schemaName)
-    return this.baseJSON.$schemas[schemaName]
-  }
-  schema_def(which) {
-    return this.baseJSON.$schemas[which]
-  }
-  schemas_save(table, schema) {
-    let edit = this.baseJSON.$schemas[table]
-    edit.properties = schema.properties
-  }
-  schemas_expand(table, contentLine) {
-    let obj = {
-       $name: contentLine.name
-      ,$type: contentLine.type
-    }
-    if(this.types.get[contentLine.type]) {
-      //add to obj
-    } else {
-      this.types.new(contentLine.type)
-    }
-    this.baseJSON.$schemas[table].push(obj)
-  }
-  schemas_prepItem(table) {
-    let base = {}
-    Object.values(this.baseJSON.$schemas[name]).forEach( prop => {
-      base[prop.name] = this.types.prep(prop.type)
-    })
-    return base
-  }
-
-  types_new(name, defaults) {
-    this.baseJSON.$types[name] = {
-      $name: name
-      ,$isPrimitive: false
-      ,$subTypes: {}
-    }
-    if(!defaults) {
-      //mark dirty?
-    }
-  }
-  types_sub_new(type, subT) {
-    console.warn('type_sub_new_called')
-    debugger
-    if(!this.baseJSON.$types[type].$subTypes)
-      this.new("subType", subT, {to: type})
-    return this.baseJSON.$types[type].$subTypes[subT.$name]
-  }
-  types_edit(name, subType) {
-    if(subType) {
-      if(!this.baseJSON.$types[name].$subTypes[subType])
-        this.new("subType", subType, {to: name})
-      return this.baseJSON.$types[name].$subTypes[subType]
-    } else {
-      if(!this.baseJSON.$types[name])
-        this.types_new(name)
-      return this.baseJSON.$types[name]
-    }
-  }
-  types_get(type, subT) {
-    let at = this.baseJSON.$types[type]
-    if(!subT) return at
-    return at.$subTypes[subT]
-  }
 }
 
 function Convert(j) {
-  console.log("Beginning conversion")
+  console.warn("This is intended to be interactive through the console")
   let out = new jDS2Handler()
 
-  Object.entries(j).forEach( ([k, ts]) => {
-      console.log("adding key: "+k)
-      out.new("table", k)
-      let fieldCache = {}
-      let defCache = {}
-      function CreateDefinition(obj, defName) {
-        let def = []
-        console.log('atDef')
-        debugger
-        Object.entries(obj).forEach(([key, value]) => {
-      
-        })
-        defCache[defName] = def
-      }
-      function TypeOf(value) {
-        let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
-        if(type=="Array") {
-          type += ":"+TypeOf(value[0])
-          console.log('atArray::'+type)
-        }
+  function CreateDefinition(obj, defName) {
+    let def = []
+    console.log('atDef')
+    debugger
+    Object.entries(obj).forEach(([key, value]) => {
+  
+    })
+    defCache[defName] = def
+  }
+  function TypeOf(value) {
+    let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
+    if(type=="Array") {
+      type += ":"+TypeOf(value[0])
+      console.log('atArray::'+type)
+    }
+    if(type=="Object") {
+      console.log("object")
+      console.log(value)
+    }
+    return type
+  }
+  //Lookup Dimension 1, Table Names
+    Object.entries(j).forEach( ([k, ts]) => {
+    console.log("adding key: "+k)
+    out.new("table", k)
+    let fieldCache = {}
+    let defCache = {}
+    //Lookup Dimension 1, Table Names
+    Object.entries(ts).forEach( ([item, fields], idx) => {
+      //TODO need to keep track of potentially changing fields
+      //TODO need to create def for 
+      //Lookup Dimension 2, Field Names
+      Object.entries(fields).forEach(([field, value]) => {
+        if(!fieldCache[field]) fieldCache[field] = []
+        let type = TypeOf(value, out)
         if(type=="Object") {
-          console.log("object")
-          console.log(value)
-        }
-        return type
-      }
-      Object.entries(ts).forEach( ([item, fields], idx) => {
-        //TODO need to keep track of potentially changing fields
-        //TODO need to create def for 
-        Object.entries(fields).forEach(([field, value]) => {
-          if(!fieldCache[field]) fieldCache[field] = []
-          let type = TypeOf(value, out)
-          if(type=="Object") {
-            defCache[k+"."+field] = CreateDefinition(value, )
-          } else {
-            if(fieldCache[field].indexOf(type)===-1) fieldCache[field].push(type)
-          }
-        })
-        out.add("content", {to: k, name: item, fields})
-      })
-      Object.entries(fieldCache).forEach(([field, types]) => {
-        let type = "String"
-        if(types.length==1) {
-          if(types[0].indexOf("Array")>-1) {
-            console.log('field contains array: '+field+" of "+JSON.stringify(types))
-            debugger
-          } else {
-            out.add("schema_field", {where: k, name: field, type: types[0]})
-          }
+          defCache[k+"."+field] = CreateDefinition(value, )
         } else {
-          //multiple types for the field detected
+          if(fieldCache[field].indexOf(type)===-1) fieldCache[field].push(type)
         }
       })
+      out.add("content", {to: k, name: item, fields})
+    })
+    //Define Schema by detected Fields
+    Object.entries(fieldCache).forEach(([field, types]) => {
+      let type = "String"
+      if(types.length==1) {
+        if(types[0].indexOf("Array")>-1) {
+          console.log('field contains array: '+field+" of "+JSON.stringify(types))
+          debugger
+        } else {
+          out.add("schema_field", {where: k, name: field, type: types[0]})
+        }
+      } else {
+        //multiple types for the field detected
+      }
+    })
   })
   console.log("Done")
   return out

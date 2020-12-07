@@ -36,6 +36,7 @@ div.content {
 #editorArea section {
   position: relative;
   height: 80%;
+  overflow-y: scroll;
 }
 #editorArea ul {
   padding: 0px;
@@ -111,4 +112,11 @@ validator > .valid {
 }
 validator > .invalid {
   color: red;
+}
+
+type-input {
+  display: inline-block;
+}
+.inline {
+  display: inline
 }

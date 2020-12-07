@@ -1,6 +1,7 @@
 import {demoContents} from "./resources/schema/defaults"
 import {jDS2Handler} from './resources/jDS2Handler'
 import {Store, keys as keysIdb, get as getIdb} from 'idb-keyval'
+import {saveAs} from 'file-saver'
 
 import {DialogService} from 'aurelia-dialog'
 import {LoadProject} from './resources/dialog/loadProject'
@@ -20,10 +21,11 @@ export class App {
   editor = null
   validatorsCache = {}
   basicTypes = ["Number", "String", "Boolean", "BigInt", "Object"]
-  constructor(DS, BS) {
+  constructor(DS, BS, sa) {
     window.jds2 = this
     this.dialogService = DS
     this.signaler = BS
+    this.save_as = saveAs
     this.baseApp = this // To be able to pass into custom elements
     setTimeout(() => {this.defaultLoad()}, 0) // Hack for browser sync desync
   }
@@ -45,6 +47,9 @@ export class App {
   async loadTFMG() {
     let response = await fetch('data_source.json')
     this.jDS2 = jDS2Handler.build(await response.json())
+    //window.c = {}
+    //window.c.t = new jDS2Handler()
+    //window.c.base = await response.json()
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
@@ -66,12 +71,12 @@ export class App {
     })
   }
   isTableValid(t) {
-    return Object.values(this.jDS2.tables_content(t)).every((ci) => this.isContentValid(t, ci))
+    return this.jDS2.list(["$tables", t, "$contents"], "values").every((ci) => this.isContentValid(t, ci))
   }
   isContentValid(t, ci) {
-    if(!t || !ci) { debugger }
-    if(typeof ci=="string") ci = this.jDS2.tables_content(t)[ci]
-    return Object.values(this.jDS2.tables_schema(t).$fields).every((f) => this.isFieldValid(f, ci.$props[f.$name]))
+    if(!t || !ci) return
+    if(typeof ci=="string") ci = this.jDS2.get(["$tables", t, "$contents", ci], true)
+    return this.jDS2.list(["$schemas", t, "$fields"], "values").every( (f) => this.isFieldValid(f, ci.$props[f.$name]))
   }
   isFieldValid(s_field, value) {
     return this.validatorLookup(value, s_field)
@@ -96,16 +101,19 @@ export class App {
   editorSave() {
     switch(this.editor.as) {
       case 'editTable':
-        this.jDS2.schemas_save(this.editor.table, this.editor.schema)
+        this.jDS2.save("schema", {$name: this.editor.schema})
         break
       case 'list':
-        this.jDS2.tables_saveContent(this.editor.table, this.editor.list)
+        this.jDS2.save("contents", {where: this.editor.table, contents: this.editor.list})
         break;
       case 'editDef':
         this.jDS2.save('def', this.editor.def)
         break;
       case "editSchema":
         this.jDS2.save('schema', this.editor.schema)
+        break;
+      case "editType":
+        //this.jDS2.save("type", {schema: this.editor.schema, subOf: this.editor.subTypeOf})
         break;
       default:
         console.log("define saving behavior for: "+this.editor.as)
@@ -144,6 +152,14 @@ export class App {
   editorCancel() {
     this.editor = null
   }
+  editorGet(item) {
+    switch(this.editor.as) {
+      case "list":
+        this.editor.CIEdit = this.jDS2.get(['$tables', this.editor.table, '$contents', item])
+     default:
+        return false
+    }
+  }
   async editTableSchema(tableName) {
     if(this.editor?.table==tableName && this.editor?.as=="editTable") return
     await this.promptEditorSave()
@@ -154,7 +170,7 @@ export class App {
     this.editor = {
        as: "editTable"
       ,table: tableName
-      ,schema: this.jDS2.schemas_edit(tableName)
+      ,schema: this.jDS2.edit("schema", tableName)
     }
   }
   async editTypeOf(typeName, subTypeName) {
@@ -167,7 +183,7 @@ export class App {
       as: "editType"
       ,type: (subTypeName || typeName)
       ,subTypeOf: (subTypeName && typeName)
-      ,schema: this.jDS2.types_edit(typeName, subTypeName)
+      ,schema: this.jDS2.edit("type", {type: typeName, subT: subTypeName})
     }
     this.signaler.signal("generalUpdate")
   }
@@ -176,8 +192,8 @@ export class App {
     this.editor = {
       as: "list"
       ,table: tableName
-      ,list: this.jDS2.tables_content(tableName)
-      ,schema: this.jDS2.tables_schema(tableName)
+      ,list: this.jDS2.get(["$tables",tableName, "$contents"])
+      ,schema: this.jDS2.get(["$schemas", tableName])
     }
   }
   addParam(params) {
@@ -214,7 +230,9 @@ export class App {
       case 'subtype':
         if(this.editor.as=="editType" && !this.editor.subTypeOf) break
         //TODO move jDS2 push to save()
-        this.jDS2.add("subtype", {to: this.editor.type, param: {$name: newSubTypeName} })
+        this.jDS2.add("subtype", {
+          to: this.editor.type, param: {$name: newSubTypeName}
+        })
         break;
       case 'def':
         if(!params) return
@@ -265,20 +283,13 @@ export class App {
         break;
     }
   }
-  addNewContentItem(name) {
-    let item = { $name: name, $props: {}}
-    let fields = this.editor.schema.$fields
-    Object.values(fields).forEach( (field) => { item.$props[field.$name] = "" })
-    this.editor.CIEdit = item
-    this.jDS2.tables_saveContentItem(this.editor.table, name, item)
-    this.editor.list[name] = item
-  }
   editContentItem(name) {
     this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
   }
   storeContentItem() {
-    this.jDS2.tables_saveContentItem(this.editor.table, this.editor.CIEdit.$name, this.editor.CIEdit)
-    this.editor.list = this.jDS2.tables_content(this.editor.table)
+    this.jDS2.add("contentItem", {to: this.editor.table, item: this.editor.CIEdit})
+    
+    this.editor.list = this.jDS2.get(["$tables",this.editor.table, "$contents"])
     this.editor.CIEdit = null
     this.signaler.signal("updateValids")
   }
@@ -289,10 +300,10 @@ export class App {
   validatorLookup(value, prop, debug = false) { // Prop comes directly from the schema...
     if(debug) debugger
     if(prop.$type=="#table") {
-      return Object.keys(this.jDS2.tables_content(prop.$lookup)).includes(value)
+      return this.jDS2.list(["$tables", prop.$lookup, "$contents"], "keys").includes(value)
     }
-    if(prop.$type=="definition") {
-      let fields = Object.values(this.jDS2.get(["$definitions", prop.$lookup, "$fields"]))
+    if(prop.$type=="#definition") {
+      let fields = this.jDS2.list(["$definitions", prop.$lookup, "$fields"], "values")
       for(let each of fields) {
 
       }

@@ -11,10 +11,11 @@ export class Definition {
   buttonText = "add"
   editType = null
   constructor(App) { 
-    this.types = App.jDS2.types_list_base
+    this.types = App.jDS2.list(['$types'], "values")
     this.signaler = App.signaler
     this.addField = (param) => App.add(this.editType+'_field', param)
     this.getDef = (def) => {
+        if(!def) return
         this.addDef = App.jDS2.get(["$definitions", def]);
         this.fieldTyping.defFields = {}
     }

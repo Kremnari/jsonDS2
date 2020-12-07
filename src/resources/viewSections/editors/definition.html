@@ -19,10 +19,10 @@
     </div>
     <div if.bind="fieldTyping.base=='#definition' && fieldTyping.lookup & signal:'lookupTrigger'">
       <input type="hidden" value.bind="(fieldTyping.defFields = {})">
-      <definition-form
+      <!-- definition-form
         value.bind="fieldTyping.defFields"
         def-name.bind="fieldTyping.lookup"
-      ></definition-form>
+      ></!-->
     </div>
     <!--STS REPLACE START-->
     <!--
