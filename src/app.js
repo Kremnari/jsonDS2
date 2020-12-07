@@ -314,9 +314,19 @@ export class App {
     this.editor.CIEdit = JSON.parse(JSON.stringify(this.editor.list[name]))
   }
   storeContentItem() {
-    this.jDS2.add("contentItem", {to: this.editor.table, item: this.editor.CIEdit})
     
-    this.editor.list = this.jDS2.get(["$tables",this.editor.table, "$contents"])
+    this.jDS2.add("contentItem", {
+       to: this.editor.table
+      ,subOf: this.editor.subOf
+      ,item: this.editor.CIEdit
+    })
+    
+    this.editor.list = this.jDS2.get([
+       "$tables"
+       ,this.editor.subOf || this.editor.table
+       ,this.editor.subOf ? "$subTables" : "$contents"
+       ,this.editor.subOf && this.editor.table
+    ])
     this.editor.CIEdit = null
     this.signaler.signal("updateValids")
   }
