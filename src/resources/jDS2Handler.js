@@ -72,7 +72,9 @@ export class jDS2Handler {
         break;
       case "content": 
       case "contentItem":
-        this.baseJSON.$tables[data.to].$contents[data.item.$name] = data.item
+        data.subOf
+        ? this.baseJSON.$tables[data.subOf].$subTables[data.to][data.item.$name] = data.item
+        : this.baseJSON.$tables[data.to].$contents[data.item.$name] = data.item
         break;
       case "schema_field":
         base = {
