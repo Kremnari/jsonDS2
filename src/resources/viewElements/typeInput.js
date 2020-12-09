@@ -27,6 +27,9 @@ export class TypeInput {
       case "Number":
         this.control = "number"
         break;
+      case "Array":
+        this.control = "Array"
+        break
       default:
         this.control = "basic"
         this.type = this.baseApp.jDS2.get(["$types", this.typing.$type])

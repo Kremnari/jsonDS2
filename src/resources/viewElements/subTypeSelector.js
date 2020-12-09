@@ -10,7 +10,7 @@ export class SubTypeSelector {
   @bindable skip = []
   constructor(App) {
     this.signaler = App.signaler
-    this.types = App.jDS2.list(["$types"], "values")
+    this.types = App.jDS2.get(["$types"])
     this.tables = App.jDS2.list(["$tables"], "keys")
     this.definitions = App.jDS2.list(["$definitions"], "keys")
   }

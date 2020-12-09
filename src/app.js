@@ -1,5 +1,5 @@
 import {demoContents} from "./resources/schema/defaults"
-import {jDS2Handler} from './resources/jDS2Handler'
+import {jDS2Handler, jDS2Converter} from './resources/jDS2Handler'
 import {Store, keys as keysIdb, get as getIdb} from 'idb-keyval'
 import {saveAs} from 'file-saver'
 
@@ -46,10 +46,8 @@ export class App {
   }
   async loadTFMG() {
     let response = await fetch('data_source.json')
-    this.jDS2 = jDS2Handler.build(await response.json())
-    //window.c = {}
-    //window.c.t = new jDS2Handler()
-    //window.c.base = await response.json()
+    this.tfmg = new jDS2Converter(await response.json())
+    console.log('loaded')
   }
   loadProject() {
     this.dialogService.open({viewModel: LoadProject, model:null, lock: false}).whenClosed(response => {
@@ -117,7 +115,7 @@ export class App {
         this.jDS2.save('schema', this.editor.schema)
         break;
       case "editType":
-        //this.jDS2.save("type", {schema: this.editor.schema, subOf: this.editor.subTypeOf})
+        this.jDS2.save("type", {schema: this.editor.schema, subOf: this.editor.subTypeOf})
         break;
       default:
         console.log("define saving behavior for: "+this.editor.as)
@@ -235,7 +233,8 @@ export class App {
     }
   }
   addParam(params) {
-    debugger
+    //! Gonna nuke this whole function...
+    // this should be apart of editorSave
     let newParam = {
       $name: params.newParamName
      ,$type: params.newParamType.base

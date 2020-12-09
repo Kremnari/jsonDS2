@@ -25,6 +25,9 @@
     ${$type.$name}
     <input type="number" value.bind="value">
   </div>
+  <div if.bind="control=='Array'">
+    ${type.$name}
+  </div>
   <div if.bind="control=='basic'"> 
     ${$type.$name}
     <input type="text" value.bind="value">

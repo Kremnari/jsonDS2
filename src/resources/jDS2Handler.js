@@ -4,15 +4,6 @@ const required = (message) => {
   throw new Error(message)
 }
 export class jDS2Handler {
-  static build(json) {
-    if(!(json.$tables || json.$version)) {
-      console.log('converting')
-      return Convert(json)
-    } else {
-      console.log('valid')
-      return new jDS2Handler(json)
-    }
-  }
   baseJSON
   constructor(json) {
     json = json || {
@@ -33,16 +24,17 @@ export class jDS2Handler {
           ,$contents: params.subTables && undefined
           ,$subTables: params.subTables && {}
         }
-        this.baseJSON.$schemas[name] = { $name: name, $fields: {}}
+        this.baseJSON.$schemas[name] = { $name: name, $fields: {} }
         break;
       case "type":
         return (this.baseJSON.$types[name] = {$name: name, $subTypes: {}, $validator: "true"})
       case "subType":
-        this.baseJSON.$types[params.to].$subTypes[name] = {
+        return (this.baseJSON.$types[params.to].$subTypes[name] = {
            $name: name
           ,$params: {}
           ,$validator: "return true"
-        }
+        })
+        break;
       case "def":
         this.baseJSON.$definitions[name] = {
            $name: name
@@ -166,8 +158,9 @@ export class jDS2Handler {
         break;
       case "type":
         data.subOf
-          ? this.baseJSON.$types[data.subOf].$subTypes[data.schema.$name]
+          ? this.baseJSON.$types[data.subOf].$subTypes[data.schema.$name] = data.schema
           : this.baseJSON.$types[data.schema.$name] = data.schema
+        debugger
         break;
       default:
         console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
@@ -193,7 +186,55 @@ export class jDS2Handler {
     return Object.keys(this.baseJSON.$definitions)
   }
 }
-
+export class jDS2Converter {
+  constructor(json) {
+    this.base = json
+    this.t = new jDS2Handler
+  }
+  get tables_list() {
+    return Object.keys(this.base)
+  }
+  set table(val) {
+    this.at = val
+  }
+  get fields() {
+    if(!this.at) return false
+    let fields = {}
+    for(let i of Object.keys(this.base[this.at])) {
+      for(let [f, v] of Object.entries(this.base[this.at][i])) {
+        let type = this.TypeOf(v)
+        if(!fields[f]) {
+          fields[f] = [type]
+        } else if(!fields[f].includes(type)) fields[f].push(type)
+      }
+    }
+    this.foundFields = fields
+    return fields
+  }
+  addToSchema(field, idx) {
+    if(!field) return
+    !this.schema && (this.schema = {})
+    this.schema[field] = this.foundFields[field][idx || 0]
+  }
+  schemaPush() {
+    this.t.new("table", this.at)
+    for(let [f, t] of Object.entries(this.schema)) {
+      this.t.add("schema_field", {name: f, type: t})
+    }
+  }
+  TypeOf(value) {
+    let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
+    if(type=="Array") {
+      type += ":"+this.TypeOf(value[0])
+      console.log('atArray::'+type)
+    }
+    if(type=="Object") {
+      console.log("object")
+      console.log(value)
+    }
+    return type
+  }
+}
 function Convert(j) {
   console.warn("This is intended to be interactive through the console")
   let out = new jDS2Handler()
@@ -206,18 +247,6 @@ function Convert(j) {
   
     })
     defCache[defName] = def
-  }
-  function TypeOf(value) {
-    let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]
-    if(type=="Array") {
-      type += ":"+TypeOf(value[0])
-      console.log('atArray::'+type)
-    }
-    if(type=="Object") {
-      console.log("object")
-      console.log(value)
-    }
-    return type
   }
   //Lookup Dimension 1, Table Names
     Object.entries(j).forEach( ([k, ts]) => {

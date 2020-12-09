@@ -19,18 +19,33 @@
       <span click.delegate="baseApp.editTypeOf(type.$name, subT)">${subT.$name}</span>
     </p>
   </div>
-  <div if.bind="subTypeOf">
+  <div if.bind="subTypeOf=='Array'">
+    Min Length:<input type="number" value.bind="type.$params.minimum"><br>
+    Max Length:<input type="number" value.bind="type.$params.maximum"><br>
+    <input type="hidden" value.bind="type.$params.allowed = []">
+    <input type="hidden" value.bind="(allowed = {})">
+    Contains types:
+    <sub-type-selector typing.bind="newContains" ></sub-type-selector>
+    <button click.delegate="type.$params.allowed.push(newContains) && (newContains = {})">Add</button>
+    <div repeat.for="type of type.$params.allowed">${type.base}::${type.subT}</div>
+  </div>
+  <div if.bind="subTypeOf && subTypeOf!='Array'">
     Parameters
     <p repeat.for="param of type.$params | objectValues & signal:'generalUpdate'">
       ${param.$name}:${param.$type}${param.$desc && " - "+param.$desc}
     </p>
     New parameter:<br>
-      <input type="hidden" value.bind="(newParamType = {})">
+      <input type="hidden" value.one-time="(newParamType = {})">
       <sub-type-selector typing.bind="newParamType"></sub-type-selector>
     named: <input type="text" value.bind="newParamName"><br>
     <input type="text" value.bind="newParamDesc" placeholder="description"><br>
-    ${newParamType.base}<br>
-    ${newParamType.subT}
-    <button click.delegate="baseApp.addParam({newParamName, newParamType, newParamDesc})">Add</button>
+    <button click.delegate="(
+      type.$params[newParamName] ={
+         $name: newParamName
+        ,$type: newParamType.base
+        ,$subType: newParamType.subT
+        ,$lookup: newParamType.lookup_table
+        ,$desc: newParamDesc
+    }) && baseApp.signaler.signal('generalUpdate')">Add</button>
   </div>
 </template>
