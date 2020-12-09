@@ -46,7 +46,7 @@
           <ul>
             <li repeat.for="contentItem of editor.list | objectValues & signal:'updateValids'">
               <span click.delegate="editorGet(contentItem.$name)">${contentItem.$name}</span>
-              <validator valid.bind="isContentValid(editor.table, contentItem) & signal:'updateValids'"></validator>
+              <validator valid.bind="isContentValid(editor.subOf || editor.table, contentItem) & signal:'updateValids'"></validator>
               <button click.delegate="editorDelete(contentItem.$name)">&#x2327;</button>
             </li>
           </ul>
@@ -59,7 +59,7 @@
             <validator valid.bind="validatorLookup(editor.CIEdit.$props[prop.$name], prop) & signal:'updateValids'"></validator>
           </div>
           <button click.delegate="storeContentItem()">Store</button>
-          <button click.delegate="editorDelete()">Delete</button>
+          <button click.delegate="editorDelete(editor.CIEdit.$name)">Delete</button>
           <button click.delegate="editor.CIEdit = null">Cancel</button>
         </div>
       </section>

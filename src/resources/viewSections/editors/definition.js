@@ -13,17 +13,18 @@ export class Definition {
   constructor(App) { 
     this.types = App.jDS2.list(['$types'], "values")
     this.signaler = App.signaler
+    this.baseApp = App
   }
   bind() {
     this.editType = (this.def && "def") || (this.schema && "schema") || required("needs schema or definition")
     this.pointer = (this.def ? this.def : this.schema)
   }
   addField(param) {
-    App.add(this.editType+'_field', param)
+    this.baseApp.add(this.editType+'_field', param)
   }
   getDef(def) {
     if(!def) return
-    this.addDef = App.jDS2.get(["$definitions", def]);
+    this.addDef = this.baseApp.jDS2.get(["$definitions", def]);
     this.fieldTyping.defFields = {}
   }
   edit(field) {

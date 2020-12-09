@@ -119,6 +119,7 @@ export class jDS2Handler {
     //@kve enum = ["keys", "values", "entries", "object"]
     let at = this.baseJSON
     if(typeof pathArray == "string") pathArray = pathArray.split("/")
+    //console.log('list:')
     //console.log(pathArray)
     pathArray.forEach((e) => at = at[e])
     return Object[kve](at)
@@ -140,7 +141,9 @@ export class jDS2Handler {
         delete this.baseJSON.$tables[who]
         break;
       case "contentItem":
-        delete this.baseJSON.$tables[params].$contents[who]
+        params.subOf
+        ? delete this.baseJSON.$tables[params.subOf].$subTables[params.base][who]
+        : delete this.baseJSON.$tables[params.base].$contents[who]
         break;
       case "def":
         delete this.baseJSON.$definitions[who.$name || who]

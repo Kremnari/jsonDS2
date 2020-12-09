@@ -71,9 +71,10 @@ export class App {
     })
   }
   isTableValid(t, sT) {
+    //console.log('TV:'+t+":"+sT)
     let pathArray = ["$tables", t, "$contents"]
     if(sT) pathArray.splice(-1, 1, "$subTables", sT)
-    console.log(pathArray)
+    //console.log(pathArray)
     return this.jDS2.list(pathArray, "values").every((ci) => this.isContentValid(t, ci))
   }
   isContentValid(t, ci) {
@@ -130,8 +131,13 @@ export class App {
     switch(this.editor.as) {
       case "list":
         if(name) {
-          this.jDS2.delete("contentItem", name, this.editor.table);
-          this.signaler.signal("updateValids")
+          this.jDS2.delete("contentItem", name, {base: this.editor.table, subOf: this.editor.subOf});
+          this.editor.list = this.jDS2.get([
+            "$tables"
+            ,this.editor.subOf || this.editor.table
+            ,this.editor.subOf ? "$subTables" : "$contents"
+            ,this.editor.subOf && this.editor.table
+         ])
         } else {
           this.jDS2.delete('table', this.editor.table)
           this.editor = null
@@ -151,6 +157,7 @@ export class App {
         break;
     }
     this.signaler.signal("generalUpdate")
+    this.signaler.signal("updateValids")
   }
   editorCancel() {
     this.editor = null
@@ -158,7 +165,13 @@ export class App {
   editorGet(item) {
     switch(this.editor.as) {
       case "list":
-        this.editor.CIEdit = this.jDS2.get(['$tables', this.editor.table, '$contents', item])
+        this.editor.CIEdit = this.jDS2.get([
+           '$tables'
+          ,this.editor.subOf || this.editor.table
+          ,this.editor.subOf ? '$subTables' : '$contents'
+          ,this.editor.subOf ? this.editor.table : item
+          ,this.editor.subOf && item
+        ])
      default:
         return false
     }
@@ -206,7 +219,7 @@ export class App {
         this.editor = {
           as: "list"
           ,table: params.sub
-          ,subOf: params.name
+          ,subOf: params.base
           ,list: this.jDS2.get(["$tables", params.base, "$subTables", params.sub])
           ,schema: this.jDS2.get(["$schemas", params.base])
         }

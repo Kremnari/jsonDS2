@@ -1,4 +1,4 @@
-<template>
+<template switch.bind="control">
   <!-- span>${type.$name}
     ${subType.$name}</span -->
   <div if.bind="control=='definition'">
@@ -17,7 +17,15 @@
       <!--NYI need to add a "new"-->
     </select>
   </div>
-  <div if.bind="control=='basic'">
+  <div if.bind="control=='boolean'">
+    ${$type.$name}
+    <input type="checkbox" checked.bind="value">
+  </div>
+  <div if.bind="control=='number'">
+    ${$type.$name}
+    <input type="number" value.bind="value">
+  </div>
+  <div if.bind="control=='basic'"> 
     ${$type.$name}
     <input type="text" value.bind="value">
   </div>

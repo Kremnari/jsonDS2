@@ -10,20 +10,29 @@ export class TypeInput {
     this.baseApp = App
   }
   bind() {
-    if(this.typing.$type=="#table") {
-      this.control = "table"
-      this.elements = this.baseApp.jDS2.list(["$tables", this.typing.$lookup, "$contents"], "keys")
-    } else if(this.typing.$type=="#definition") {
-      this.control = "definition"
-      this.collapseMe = false
-      this.value ??= {}
-      this.defLines = this.baseApp.jDS2.list(["$definitions", this.typing.$lookup, "$fields"], "values")
-    } else {
-      this.control = "basic"
-      this.type = this.baseApp.jDS2.get(["$types", this.typing.$type])
-      if(this.typing.$subType) {
-        this.subType = this.baseApp.jDS2.get(["$types", this.typing.$type,"$subTypes", this.typing.$subType])
-      }
+    switch(this.typing.$type) {
+      case "#table":
+        this.control = "table"
+        this.elements = this.baseApp.jDS2.list(["$tables", this.typing.$lookup, "$contents"], "keys")
+        break;
+      case "#definition": 
+        this.control = "definition"
+        this.collapseMe = false
+        this.value ??= {}
+        this.defLines = this.baseApp.jDS2.list(["$definitions", this.typing.$lookup, "$fields"], "values")
+        break;
+      case "Boolean":
+        this.control = "boolean"
+        break;
+      case "Number":
+        this.control = "number"
+        break;
+      default:
+        this.control = "basic"
+        this.type = this.baseApp.jDS2.get(["$types", this.typing.$type])
+        if(this.typing.$subType) {
+          this.subType = this.baseApp.jDS2.get(["$types", this.typing.$type,"$subTypes", this.typing.$subType])
+        }
     }
   }
   valueChanged() {
