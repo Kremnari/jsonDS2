@@ -21,7 +21,7 @@ export class jDS2Handler {
         this.baseJSON.$tables[name] = {
            $name: name
           ,$schema: name
-          ,$contents: params.subTables && undefined
+          ,$contents: !params.subTables && {}
           ,$subTables: params.subTables && {}
         }
         this.baseJSON.$schemas[name] = { $name: name, $fields: {} }
@@ -64,9 +64,10 @@ export class jDS2Handler {
         break;
       case "content": 
       case "contentItem":
+        let name = data.item.$name || data.$name
         data.subOf
-        ? this.baseJSON.$tables[data.subOf].$subTables[data.to][data.item.$name] = data.item
-        : this.baseJSON.$tables[data.to].$contents[data.item.$name] = data.item
+        ? this.baseJSON.$tables[data.subOf].$subTables[data.to][name] = data.item
+        : this.baseJSON.$tables[data.to].$contents[name ] = data.item
         break;
       case "schema_field":
         base = {
@@ -160,7 +161,6 @@ export class jDS2Handler {
         data.subOf
           ? this.baseJSON.$types[data.subOf].$subTypes[data.schema.$name] = data.schema
           : this.baseJSON.$types[data.schema.$name] = data.schema
-        debugger
         break;
       default:
         console.log("%cdefine save behaviour", "color: orange; background: lightgrey")
@@ -191,6 +191,14 @@ export class jDS2Converter {
     this.base = json
     this.t = new jDS2Handler
   }
+  script() {
+    this.table = "item"
+    this.fields
+    this.skipField("localised_name")
+    this.skipField("fuel_value")
+    this.addAllFields()
+    this.tablePush()
+  }
   get tables_list() {
     return Object.keys(this.base)
   }
@@ -209,18 +217,43 @@ export class jDS2Converter {
       }
     }
     this.foundFields = fields
+    this.skipFields = []
+    this.schema = {}
     return fields
+  }
+  addAllFields() {
+    Object.keys(this.foundFields).forEach((k) => !this.skipFields.includes(k) && this.addToSchema(k))
+  }
+  skipField(name) {
+    this.skipFields.push(name)
   }
   addToSchema(field, idx) {
     if(!field) return
-    !this.schema && (this.schema = {})
     this.schema[field] = this.foundFields[field][idx || 0]
   }
   schemaPush() {
     this.t.new("table", this.at)
     for(let [f, t] of Object.entries(this.schema)) {
-      this.t.add("schema_field", {name: f, type: t})
+      this.t.add("schema_field", {where: this.at, name: f, type: t})
     }
+    console.log('schemaPushed')
+  }
+  contentPush() {
+    let item = null
+    let useKeys = Object.keys(this.schema)
+    for(let ci of Object.values(this.base[this.at])) {
+      item = {}
+      for(let k of useKeys) {
+        item[k] = ci[k]
+      }
+      this.t.add("contentItem", {to: this.at, item, $name: item.name})
+    }
+    console.log("contentPushed")
+  }
+  tablePush() {
+    this.schemaPush()
+    this.contentPush()
+    this.at = null
   }
   TypeOf(value) {
     let type = ({}).toString.call(value).match(/\s([a-zA-Z]+)/)[1]

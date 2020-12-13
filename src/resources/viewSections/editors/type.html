@@ -23,7 +23,6 @@
     Min Length:<input type="number" value.bind="type.$params.minimum"><br>
     Max Length:<input type="number" value.bind="type.$params.maximum"><br>
     <input type="hidden" value.bind="type.$params.allowed = []">
-    <input type="hidden" value.bind="(allowed = {})">
     Contains types:
     <sub-type-selector typing.bind="newContains" ></sub-type-selector>
     <button click.delegate="type.$params.allowed.push(newContains) && (newContains = {})">Add</button>
